@@ -1,8 +1,12 @@
+
 import React, { useState } from 'react';
 import { Card } from './ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
-import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, ResponsiveContainer } from 'recharts';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from './ui/tabs';
+import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Tooltip } from 'recharts';
+import { Button } from './ui/button';
+import { Download } from 'lucide-react';
 import { Purchase, Sale, Debt, Product, Client } from '../types/business';
+import { useLanguage } from './LanguageContext';
 
 interface ReportsProps {
   purchases: Purchase[];
@@ -13,6 +17,7 @@ interface ReportsProps {
 }
 
 export function Reports({ purchases, sales, debts, products, clients }: ReportsProps) {
+  const { t } = useLanguage();
   const [activeTab, setActiveTab] = useState('daily');
 
   // Calculate totals
@@ -138,75 +143,195 @@ export function Reports({ purchases, sales, debts, products, clients }: ReportsP
       }));
   };
 
+  // Export report as CSV
+  const handleExportReport = () => {
+    const headers = [
+      t.totalSales,
+      t.totalPurchases,
+      t.netProfit,
+      t.outstandingDebts,
+      t.profitMargin,
+      t.totalTransactions,
+      t.clientsWithDebt
+    ];
+
+    const overviewData = [
+      totalSales.toFixed(2),
+      totalPurchases.toFixed(2),
+      totalProfit.toFixed(2),
+      totalDebts.toFixed(2),
+      totalSales > 0 ? ((totalProfit / totalSales) * 100).toFixed(1) + '%' : 'N/A',
+      (sales.length + purchases.length).toString(),
+      debts.filter(debt => debt.totalDebt > 0).length.toString()
+    ];
+
+    const timeBasedHeaders = [t.period, t.sales, t.purchases, t.profit];
+    const timeBasedRows = generateTimeBasedData(activeTab as 'daily' | 'monthly' | 'yearly').map(data => [
+      data.period,
+      data.sales.toFixed(2),
+      data.purchases.toFixed(2),
+      data.profit.toFixed(2)
+    ]);
+
+    const clientHeaders = [t.clientName, t.totalSales];
+    const clientRows = generateClientDistribution().map(data => [
+      data.name,
+      data.value.toFixed(2)
+    ]);
+
+    const supplierHeaders = [t.supplierName, t.totalPurchases];
+    const supplierRows = generateSupplierDistribution().map(data => [
+      data.name,
+      data.value.toFixed(2)
+    ]);
+
+    const debtHeaders = [t.clientName, t.outstandingDebt];
+    const debtRows = debts.filter(debt => debt.totalDebt > 0).map(debt => [
+      debt.clientName,
+      debt.totalDebt.toFixed(2)
+    ]);
+
+    const csvContent = [
+      headers.join(','),
+      overviewData.join(','),
+      '',
+      timeBasedHeaders.join(','),
+      ...timeBasedRows.map(row => row.join(',')),
+      '',
+      clientHeaders.join(','),
+      ...clientRows.map(row => row.join(',')),
+      '',
+      supplierHeaders.join(','),
+      ...supplierRows.map(row => row.join(',')),
+      '',
+      debtHeaders.join(','),
+      ...debtRows.map(row => row.join(','))
+    ].join('\n');
+
+    const dataBlob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(dataBlob);
+    
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `bizmob-report-${new Date().toISOString().split('T')[0]}.csv`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
+
   const timeBasedData = generateTimeBasedData(activeTab as 'daily' | 'monthly' | 'yearly');
   const clientDistribution = generateClientDistribution();
   const supplierDistribution = generateSupplierDistribution();
 
+  // Custom tooltip formatter for BarChart
+  const CustomTooltip = ({ active, payload, label }: any) => {
+    if (active && payload && payload.length) {
+      return (
+        <div className="bg-white p-3 border border-gray-200 rounded shadow-sm">
+          <p className="text-sm font-medium text-gray-800">{label}</p>
+          {payload.map((entry: any, index: number) => (
+            <p key={index} className="text-sm" style={{ color: entry.fill }}>
+              {entry.name === 'sales' ? t.salesTooltip.replace('{value}', entry.value.toFixed(2)) :
+               entry.name === 'purchases' ? t.purchasesTooltip.replace('{value}', entry.value.toFixed(2)) :
+               t.profitTooltip.replace('{value}', entry.value.toFixed(2))}
+            </p>
+          ))}
+        </div>
+      );
+    }
+    return null;
+  };
+
+  // Custom tooltip formatter for PieChart
+  const PieTooltip = ({ active, payload }: any) => {
+    if (active && payload && payload.length) {
+      const data = payload[0].payload;
+      return (
+        <div className="bg-white p-3 border border-gray-200 rounded shadow-sm">
+          <p className="text-sm" style={{ color: data.color }}>
+            {data.name.includes('Client') ?
+              t.clientTooltip.replace('{name}', data.name).replace('{value}', data.value.toFixed(2)) :
+              t.supplierTooltip.replace('{name}', data.name).replace('{value}', data.value.toFixed(2))}
+          </p>
+        </div>
+      );
+    }
+    return null;
+  };
+
   return (
-    <div className="p-6 space-y-6">
+    <div className="p-4 sm:p-6 space-y-6">
       {/* Header */}
-      <div>
-        <h1 className="text-gray-800">Business Reports</h1>
-        <p className="text-gray-600">Track your business performance</p>
+      <div className="flex justify-between items-center">
+        <div>
+          <h1 className="text-lg sm:text-xl text-gray-800">{t.businessReports}</h1>
+          <p className="text-sm text-gray-600">{t.trackBusinessPerformance}</p>
+        </div>
+        <Button onClick={handleExportReport} variant="outline" className="flex items-center gap-2">
+          <Download className="w-4 h-4" />
+          {t.exportReport}
+        </Button>
       </div>
 
       {/* Overview Cards */}
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
         <Card className="p-4 text-center">
-          <h3 className="text-green-600">${totalSales.toLocaleString()}</h3>
-          <p className="text-gray-600">Total Sales</p>
+          <h3 className="text-base sm:text-lg text-green-600">${totalSales.toLocaleString()}</h3>
+          <p className="text-xs sm:text-sm text-gray-600">{t.totalSales}</p>
         </Card>
         <Card className="p-4 text-center">
-          <h3 className="text-blue-600">${totalPurchases.toLocaleString()}</h3>
-          <p className="text-gray-600">Total Purchases</p>
+          <h3 className="text-base sm:text-lg text-blue-600">${totalPurchases.toLocaleString()}</h3>
+          <p className="text-xs sm:text-sm text-gray-600">{t.totalPurchases}</p>
         </Card>
         <Card className="p-4 text-center">
-          <h3 className={totalProfit >= 0 ? 'text-emerald-600' : 'text-red-600'}>
+          <h3 className={`text-base sm:text-lg ${totalProfit >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
             ${totalProfit.toLocaleString()}
           </h3>
-          <p className="text-gray-600">Net Profit</p>
+          <p className="text-xs sm:text-sm text-gray-600">{t.netProfit}</p>
         </Card>
         <Card className="p-4 text-center">
-          <h3 className="text-red-600">${totalDebts.toLocaleString()}</h3>
-          <p className="text-gray-600">Outstanding Debts</p>
+          <h3 className="text-base sm:text-lg text-red-600">${totalDebts.toLocaleString()}</h3>
+          <p className="text-xs sm:text-sm text-gray-600">{t.outstandingDebts}</p>
         </Card>
       </div>
 
       {/* Time-based Analysis */}
       <Tabs value={activeTab} onValueChange={setActiveTab}>
         <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="daily">Daily</TabsTrigger>
-          <TabsTrigger value="monthly">Monthly</TabsTrigger>
-          <TabsTrigger value="yearly">Yearly</TabsTrigger>
+          <TabsTrigger value="daily">{t.daily}</TabsTrigger>
+          <TabsTrigger value="monthly">{t.monthly}</TabsTrigger>
+          <TabsTrigger value="yearly">{t.yearly}</TabsTrigger>
         </TabsList>
 
         <TabsContent value={activeTab} className="space-y-6">
           {/* Sales vs Purchases Chart */}
           <Card className="p-4">
-            <h3 className="text-gray-800 mb-4">Sales vs Purchases - {activeTab.charAt(0).toUpperCase() + activeTab.slice(1)}</h3>
-            <div className="h-64">
-              <ResponsiveContainer width="100%" height="100%">
+            <h3 className="text-base sm:text-lg text-gray-800 mb-4">{t.salesVsPurchases} - {activeTab === 'daily' ? t.daily : activeTab === 'monthly' ? t.monthly : t.yearly}</h3>
+            <div className="h-64 sm:h-80">
+              <ResponsiveContainer width="100%" height="100%" minHeight={200}>
                 <BarChart data={timeBasedData}>
                   <XAxis 
                     dataKey="period" 
                     axisLine={false}
                     tickLine={false}
-                    tick={{ fontSize: 12, fill: '#6B7280' }}
+                    tick={{ fontSize: '10px sm:12px', fill: '#6B7280' }}
                   />
                   <YAxis hide />
+                  <Tooltip content={<CustomTooltip />} />
                   <Bar dataKey="sales" fill="#10B981" radius={[2, 2, 0, 0]} />
                   <Bar dataKey="purchases" fill="#EF4444" radius={[2, 2, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
             </div>
-            <div className="flex justify-center gap-6 mt-4">
+            <div className="flex justify-center gap-4 sm:gap-6 mt-4">
               <div className="flex items-center gap-2">
                 <div className="w-3 h-3 bg-green-500 rounded"></div>
-                <span className="text-sm text-gray-600">Sales</span>
+                <span className="text-xs sm:text-sm text-gray-600">{t.sales}</span>
               </div>
               <div className="flex items-center gap-2">
                 <div className="w-3 h-3 bg-red-500 rounded"></div>
-                <span className="text-sm text-gray-600">Purchases</span>
+                <span className="text-xs sm:text-sm text-gray-600">{t.purchases}</span>
               </div>
             </div>
           </Card>
@@ -216,9 +341,9 @@ export function Reports({ purchases, sales, debts, products, clients }: ReportsP
       {/* Client Distribution */}
       {clientDistribution.length > 0 && (
         <Card className="p-4">
-          <h3 className="text-gray-800 mb-4">Top Clients by Sales</h3>
-          <div className="h-64">
-            <ResponsiveContainer width="100%" height="100%">
+          <h3 className="text-base sm:text-lg text-gray-800 mb-4">{t.topClientsBySales}</h3>
+          <div className="h-64 sm:h-80">
+            <ResponsiveContainer width="100%" height="100%" minHeight={200}>
               <PieChart>
                 <Pie
                   data={clientDistribution}
@@ -232,6 +357,7 @@ export function Reports({ purchases, sales, debts, products, clients }: ReportsP
                     <Cell key={`cell-${index}`} fill={entry.color} />
                   ))}
                 </Pie>
+                <Tooltip content={<PieTooltip />} />
               </PieChart>
             </ResponsiveContainer>
           </div>
@@ -241,9 +367,9 @@ export function Reports({ purchases, sales, debts, products, clients }: ReportsP
       {/* Supplier Distribution */}
       {supplierDistribution.length > 0 && (
         <Card className="p-4">
-          <h3 className="text-gray-800 mb-4">Top Suppliers by Purchases</h3>
-          <div className="h-64">
-            <ResponsiveContainer width="100%" height="100%">
+          <h3 className="text-base sm:text-lg text-gray-800 mb-4">{t.topSuppliersByPurchases}</h3>
+          <div className="h-64 sm:h-80">
+            <ResponsiveContainer width="100%" height="100%" minHeight={200}>
               <PieChart>
                 <Pie
                   data={supplierDistribution}
@@ -257,6 +383,7 @@ export function Reports({ purchases, sales, debts, products, clients }: ReportsP
                     <Cell key={`cell-${index}`} fill={entry.color} />
                   ))}
                 </Pie>
+                <Tooltip content={<PieTooltip />} />
               </PieChart>
             </ResponsiveContainer>
           </div>
@@ -266,12 +393,12 @@ export function Reports({ purchases, sales, debts, products, clients }: ReportsP
       {/* Debt Overview */}
       {debts.length > 0 && (
         <Card className="p-4">
-          <h3 className="text-gray-800 mb-4">Debt Overview</h3>
+          <h3 className="text-base sm:text-lg text-gray-800 mb-4">{t.debtOverview}</h3>
           <div className="space-y-3">
             {debts.filter(debt => debt.totalDebt > 0).map((debt) => (
               <div key={debt.id} className="flex justify-between items-center py-2 border-b border-gray-100 last:border-b-0">
-                <span className="text-gray-800">{debt.clientName}</span>
-                <span className="text-red-600">${debt.totalDebt.toFixed(2)}</span>
+                <span className="text-gray-800 text-sm sm:text-base">{debt.clientName}</span>
+                <span className="text-red-600 text-sm sm:text-base">${debt.totalDebt.toFixed(2)}</span>
               </div>
             ))}
           </div>
@@ -280,21 +407,21 @@ export function Reports({ purchases, sales, debts, products, clients }: ReportsP
 
       {/* Quick Insights */}
       <Card className="p-4">
-        <h3 className="text-gray-800 mb-4">Quick Insights</h3>
+        <h3 className="text-base sm:text-lg text-gray-800 mb-4">{t.quickInsights}</h3>
         <div className="space-y-3">
           <div className="flex justify-between items-center">
-            <span className="text-gray-600">Profit Margin</span>
-            <span className={totalSales > 0 ? (totalProfit >= 0 ? 'text-green-600' : 'text-red-600') : 'text-gray-600'}>
+            <span className="text-gray-600 text-sm sm:text-base">{t.profitMargin}</span>
+            <span className={`text-sm sm:text-base ${totalSales > 0 ? (totalProfit >= 0 ? 'text-green-600' : 'text-red-600') : 'text-gray-600'}`}>
               {totalSales > 0 ? `${((totalProfit / totalSales) * 100).toFixed(1)}%` : 'N/A'}
             </span>
           </div>
           <div className="flex justify-between items-center">
-            <span className="text-gray-600">Total Transactions</span>
-            <span className="text-blue-600">{sales.length + purchases.length}</span>
+            <span className="text-gray-600 text-sm sm:text-base">{t.totalTransactions}</span>
+            <span className="text-blue-600 text-sm sm:text-base">{sales.length + purchases.length}</span>
           </div>
           <div className="flex justify-between items-center">
-            <span className="text-gray-600">Clients with Debt</span>
-            <span className="text-red-600">{debts.filter(debt => debt.totalDebt > 0).length}</span>
+            <span className="text-gray-600 text-sm sm:text-base">{t.clientsWithDebt}</span>
+            <span className="text-red-600 text-sm sm:text-base">{debts.filter(debt => debt.totalDebt > 0).length}</span>
           </div>
         </div>
       </Card>

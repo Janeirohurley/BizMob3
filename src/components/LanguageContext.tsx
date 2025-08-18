@@ -129,6 +129,21 @@ export interface Translation {
   netProfit: string;
   profitMargin: string;
   totalTransactions: string;
+  trackBusinessPerformance: string;
+  salesVsPurchases: string;
+  topClientsBySales: string;
+  topSuppliersByPurchases: string;
+  debtOverview: string;
+  quickInsights: string;
+  daily: string;
+  monthly: string;
+  yearly: string;
+  exportReport: string;
+  salesTooltip: string;
+  purchasesTooltip: string;
+  profitTooltip: string;
+  clientTooltip: string;
+  supplierTooltip: string;
   
   // Settings
   businessInformation: string;
@@ -174,6 +189,62 @@ export interface Translation {
   required: string;
   invalidEmail: string;
   passwordTooShort: string;
+
+  // New keys for Settings
+  appPreferences: string;
+  saveChanges: string;
+  currentPasswordLabel: string;
+  enterCurrentPassword: string;
+  newPasswordLabel: string;
+  enterNewPassword: string;
+  confirmNewPasswordLabel: string;
+  enterConfirmNewPassword: string;
+  updatePassword: string;
+  dataStatistics: string;
+  dataSize: string;
+  exportBackup: string;
+  importRestore: string;
+  importConfirm: string;
+  invalidBackup: string;
+  errorReadingBackup: string;
+  backupTip1: string;
+  backupTip2: string;
+  backupTip3: string;
+  aboutApp: string;
+  appVersionInfo: string;
+  localData: string;
+  noInternet: string;
+  copyright: string;
+  selectLanguage: string;
+  languageChangeInfo: string;
+  namesRequired: string;
+
+// History (nouvelles clés)
+  transactionHistory: string;
+  completeBusinessTransactionLog: string;
+  loss: string;
+  filters: string;
+  searchTransactions: string;
+  transactionType: string;
+  allTypes: string;
+  salesOnly: string;
+  purchasesOnly: string;
+  dateRange: string;
+  allTime: string;
+  today: string;
+  last7Days: string;
+  last30Days: string;
+  lastYear: string;
+  filterByParty: string;
+  allParties: string;
+  clearAllFilters: string;
+  noTransactionsFound: string;
+  adjustFilters: string;
+  startTransactions: string;
+  saleTo: string;
+  purchaseFrom: string;
+  net: string;
+  exportHistory: string;
 }
 
 const translations: Record<Language, Translation> = {
@@ -304,6 +375,21 @@ const translations: Record<Language, Translation> = {
     netProfit: 'Net Profit',
     profitMargin: 'Profit Margin',
     totalTransactions: 'Total Transactions',
+    trackBusinessPerformance: 'Track your business performance',
+    salesVsPurchases: 'Sales vs Purchases',
+    topClientsBySales: 'Top Clients by Sales',
+    topSuppliersByPurchases: 'Top Suppliers by Purchases',
+    debtOverview: 'Debt Overview',
+    quickInsights: 'Quick Insights',
+    daily: 'Daily',
+    monthly: 'Monthly',
+    yearly: 'Yearly',
+    exportReport: 'Export Report as CSV',
+    salesTooltip: 'Sales: ${value}',
+    purchasesTooltip: 'Purchases: ${value}',
+    profitTooltip: 'Profit: ${value}',
+    clientTooltip: 'Client: {name}, Sales: ${value}',
+    supplierTooltip: 'Supplier: {name}, Purchases: ${value}',
     
     // Settings
     businessInformation: 'Business Information',
@@ -348,7 +434,64 @@ const translations: Record<Language, Translation> = {
     // Validation
     required: 'Required',
     invalidEmail: 'Invalid email address',
-    passwordTooShort: 'Password must be at least 4 characters'
+    passwordTooShort: 'Password must be at least 4 characters',
+
+    // New keys for Settings
+    appPreferences: 'Manage your business and app preferences',
+    saveChanges: 'Save Changes',
+    currentPasswordLabel: 'Current Password',
+    enterCurrentPassword: 'Enter current password',
+    newPasswordLabel: 'New Password',
+    enterNewPassword: 'Enter new password',
+    confirmNewPasswordLabel: 'Confirm New Password',
+    enterConfirmNewPassword: 'Confirm new password',
+    updatePassword: 'Update Password',
+    dataStatistics: 'Data Statistics',
+    dataSize: 'Data Size',
+    exportBackup: 'Export Data (Backup)',
+    importRestore: 'Import Data (Restore)',
+    importConfirm: 'This will replace all current data with backup from {date}. Continue?',
+    invalidBackup: 'Invalid backup file format',
+    errorReadingBackup: 'Error reading backup file',
+    backupTip1: '💡 Regular backups help protect your business data',
+    backupTip2: '• Backups are saved as JSON files on your device',
+    backupTip3: '• No data is sent to external servers',
+    aboutApp: 'About BizMob',
+    appVersionInfo: 'BizMob v1.0.0 - Offline Business Notebook',
+    localData: 'All data is stored locally on your device',
+    noInternet: 'No internet connection required',
+    copyright: '© 2024 BizMob. Simple business management.',
+    selectLanguage: 'Select Language',
+    languageChangeInfo: 'Language changes apply immediately and are saved automatically',
+    namesRequired: 'Business name and user name are required',
+
+    // historique
+
+    transactionHistory: 'Transaction History',
+    completeBusinessTransactionLog: 'Complete business transaction log',
+    loss: 'Loss',
+    filters: 'Filters',
+    searchTransactions: 'Search transactions...',
+    transactionType: 'Transaction Type',
+    allTypes: 'All Types',
+    salesOnly: 'Sales Only',
+    purchasesOnly: 'Purchases Only',
+    dateRange: 'Date Range',
+    allTime: 'All Time',
+    today: 'Today',
+    last7Days: 'Last 7 Days',
+    last30Days: 'Last 30 Days',
+    lastYear: 'Last Year',
+    filterByParty: 'Filter by Client/Supplier',
+    allParties: 'All Parties',
+    clearAllFilters: 'Clear All Filters',
+    noTransactionsFound: 'No transactions found',
+    adjustFilters: 'Try adjusting your filters',
+    startTransactions: 'Start making purchases and sales to see your transaction history',
+    saleTo: 'Sale to',
+    purchaseFrom: 'Purchase from',
+    net: 'Net',
+    exportHistory: 'Export History as CSV'
   },
   
   fr: {
@@ -478,6 +621,21 @@ const translations: Record<Language, Translation> = {
     netProfit: 'Profit Net',
     profitMargin: 'Marge Bénéficiaire',
     totalTransactions: 'Total des Transactions',
+    trackBusinessPerformance: 'Suivez les performances de votre entreprise',
+    salesVsPurchases: 'Ventes vs Achats',
+    topClientsBySales: 'Meilleurs clients par ventes',
+    topSuppliersByPurchases: 'Meilleurs fournisseurs par achats',
+    debtOverview: 'Aperçu des dettes',
+    quickInsights: 'Aperçus rapides',
+    daily: 'Quotidien',
+    monthly: 'Mensuel',
+    yearly: 'Annuel',
+    exportReport: 'Exporter le rapport en CSV',
+    salesTooltip: 'Ventes : ${value}',
+    purchasesTooltip: 'Achats : ${value}',
+    profitTooltip: 'Profit : ${value}',
+    clientTooltip: 'Client : {name}, Ventes : ${value}',
+    supplierTooltip: 'Fournisseur : {name}, Achats : ${value}',
     
     // Settings
     businessInformation: 'Informations de l\'Entreprise',
@@ -522,7 +680,64 @@ const translations: Record<Language, Translation> = {
     // Validation
     required: 'Obligatoire',
     invalidEmail: 'Adresse email invalide',
-    passwordTooShort: 'Le mot de passe doit contenir au moins 4 caractères'
+    passwordTooShort: 'Le mot de passe doit contenir au moins 4 caractères',
+
+    // New keys for Settings
+    appPreferences: 'Gérez vos préférences d\'entreprise et d\'application',
+    saveChanges: 'Enregistrer les modifications',
+    currentPasswordLabel: 'Mot de passe actuel',
+    enterCurrentPassword: 'Entrez le mot de passe actuel',
+    newPasswordLabel: 'Nouveau mot de passe',
+    enterNewPassword: 'Entrez le nouveau mot de passe',
+    confirmNewPasswordLabel: 'Confirmer le nouveau mot de passe',
+    enterConfirmNewPassword: 'Confirmez le nouveau mot de passe',
+    updatePassword: 'Mettre à jour le mot de passe',
+    dataStatistics: 'Statistiques des données',
+    dataSize: 'Taille des données',
+    exportBackup: 'Exporter les données (Sauvegarde)',
+    importRestore: 'Importer les données (Restauration)',
+    importConfirm: 'Cela remplacera toutes les données actuelles par la sauvegarde du {date}. Continuer ?',
+    invalidBackup: 'Format de fichier de sauvegarde invalide',
+    errorReadingBackup: 'Erreur lors de la lecture du fichier de sauvegarde',
+    backupTip1: '💡 Des sauvegardes régulières aident à protéger vos données d\'entreprise',
+    backupTip2: '• Les sauvegardes sont enregistrées sous forme de fichiers JSON sur votre appareil',
+    backupTip3: '• Aucune donnée n\'est envoyée vers des serveurs externes',
+    aboutApp: 'À propos de BizMob',
+    appVersionInfo: 'BizMob v1.0.0 - Carnet d\'affaires hors ligne',
+    localData: 'Toutes les données sont stockées localement sur votre appareil',
+    noInternet: 'Aucune connexion internet requise',
+    copyright: '© 2024 BizMob. Gestion d\'entreprise simple.',
+    selectLanguage: 'Sélectionner la langue',
+    languageChangeInfo: 'Les changements de langue s\'appliquent immédiatement et sont sauvegardés automatiquement',
+    namesRequired: 'Le nom de l\'entreprise et le nom d\'utilisateur sont requis',
+
+    // historique
+
+    transactionHistory: 'Historique des transactions',
+    completeBusinessTransactionLog: 'Journal complet des transactions commerciales',
+    loss: 'Perte',
+    filters: 'Filtres',
+    searchTransactions: 'Rechercher des transactions...',
+    transactionType: 'Type de transaction',
+    allTypes: 'Tous les types',
+    salesOnly: 'Ventes uniquement',
+    purchasesOnly: 'Achats uniquement',
+    dateRange: 'Plage de dates',
+    allTime: 'Tout le temps',
+    today: 'Aujourd\'hui',
+    last7Days: '7 derniers jours',
+    last30Days: '30 derniers jours',
+    lastYear: 'Dernière année',
+    filterByParty: 'Filtrer par client/fournisseur',
+    allParties: 'Toutes les parties',
+    clearAllFilters: 'Effacer tous les filtres',
+    noTransactionsFound: 'Aucune transaction trouvée',
+    adjustFilters: 'Essayez d\'ajuster vos filtres',
+    startTransactions: 'Commencez à effectuer des achats et des ventes pour voir votre historique de transactions',
+    saleTo: 'Vente à',
+    purchaseFrom: 'Achat de',
+    net: 'Net',
+    exportHistory: 'Exporter l\'historique en CSV'
   },
   
   es: {
@@ -652,6 +867,21 @@ const translations: Record<Language, Translation> = {
     netProfit: 'Ganancia Neta',
     profitMargin: 'Margen de Ganancia',
     totalTransactions: 'Total de Transacciones',
+    trackBusinessPerformance: 'Sigue el rendimiento de tu negocio',
+    salesVsPurchases: 'Ventas vs Compras',
+    topClientsBySales: 'Mejores clientes por ventas',
+    topSuppliersByPurchases: 'Mejores proveedores por compras',
+    debtOverview: 'Resumen de deudas',
+    quickInsights: 'Perspectivas rápidas',
+    daily: 'Diario',
+    monthly: 'Mensual',
+    yearly: 'Anual',
+    exportReport: 'Exportar informe como CSV',
+    salesTooltip: 'Ventas: ${value}',
+    purchasesTooltip: 'Compras: ${value}',
+    profitTooltip: 'Ganancia: ${value}',
+    clientTooltip: 'Cliente: {name}, Ventas: ${value}',
+    supplierTooltip: 'Proveedor: {name}, Compras: ${value}',
     
     // Settings
     businessInformation: 'Información del Negocio',
@@ -696,7 +926,65 @@ const translations: Record<Language, Translation> = {
     // Validation
     required: 'Requerido',
     invalidEmail: 'Dirección de email inválida',
-    passwordTooShort: 'La contraseña debe tener al menos 4 caracteres'
+    passwordTooShort: 'La contraseña debe tener al menos 4 caracteres',
+
+    // New keys for Settings
+    appPreferences: 'Administra las preferencias de tu negocio y aplicación',
+    saveChanges: 'Guardar cambios',
+    currentPasswordLabel: 'Contraseña actual',
+    enterCurrentPassword: 'Ingresa la contraseña actual',
+    newPasswordLabel: 'Nueva contraseña',
+    enterNewPassword: 'Ingresa la nueva contraseña',
+    confirmNewPasswordLabel: 'Confirmar nueva contraseña',
+    enterConfirmNewPassword: 'Confirma la nueva contraseña',
+    updatePassword: 'Actualizar contraseña',
+    dataStatistics: 'Estadísticas de datos',
+    dataSize: 'Tamaño de datos',
+    exportBackup: 'Exportar datos (Copia de seguridad)',
+    importRestore: 'Importar datos (Restaurar)',
+    importConfirm: 'Esto reemplazará todos los datos actuales con la copia de seguridad del {date}. ¿Continuar?',
+    invalidBackup: 'Formato de archivo de copia de seguridad inválido',
+    errorReadingBackup: 'Error al leer el archivo de copia de seguridad',
+    backupTip1: '💡 Las copias de seguridad regulares ayudan a proteger tus datos de negocio',
+    backupTip2: '• Las copias de seguridad se guardan como archivos JSON en tu dispositivo',
+    backupTip3: '• No se envían datos a servidores externos',
+    aboutApp: 'Acerca de BizMob',
+    appVersionInfo: 'BizMob v1.0.0 - Cuaderno de negocios sin conexión',
+    localData: 'Todos los datos se almacenan localmente en tu dispositivo',
+    noInternet: 'No se requiere conexión a internet',
+    copyright: '© 2024 BizMob. Gestión de negocio simple.',
+    selectLanguage: 'Seleccionar idioma',
+    languageChangeInfo: 'Los cambios de idioma se aplican inmediatamente y se guardan automáticamente',
+    namesRequired: 'El nombre del negocio y el nombre de usuario son requeridos',
+
+
+    // historique
+
+    transactionHistory: 'Historial de transacciones',
+    completeBusinessTransactionLog: 'Registro completo de transacciones comerciales',
+    loss: 'Pérdida',
+    filters: 'Filtros',
+    searchTransactions: 'Buscar transacciones...',
+    transactionType: 'Tipo de transacción',
+    allTypes: 'Todos los tipos',
+    salesOnly: 'Solo ventas',
+    purchasesOnly: 'Solo compras',
+    dateRange: 'Rango de fechas',
+    allTime: 'Todo el tiempo',
+    today: 'Hoy',
+    last7Days: 'Últimos 7 días',
+    last30Days: 'Últimos 30 días',
+    lastYear: 'Último año',
+    filterByParty: 'Filtrar por cliente/proveedor',
+    allParties: 'Todas las partes',
+    clearAllFilters: 'Borrar todos los filtros',
+    noTransactionsFound: 'No se encontraron transacciones',
+    adjustFilters: 'Intenta ajustar tus filtros',
+    startTransactions: 'Comienza a realizar compras y ventas para ver tu historial de transacciones',
+    saleTo: 'Venta a',
+    purchaseFrom: 'Compra de',
+    net: 'Neto',
+    exportHistory: 'Exportar historial como CSV'
   },
   
   ar: {
@@ -826,6 +1114,21 @@ const translations: Record<Language, Translation> = {
     netProfit: 'صافي الربح',
     profitMargin: 'هامش الربح',
     totalTransactions: 'إجمالي المعاملات',
+    trackBusinessPerformance: 'تتبع أداء عملك',
+    salesVsPurchases: 'المبيعات مقابل المشتريات',
+    topClientsBySales: 'أفضل العملاء حسب المبيعات',
+    topSuppliersByPurchases: 'أفضل الموردين حسب المشتريات',
+    debtOverview: 'نظرة عامة على الديون',
+    quickInsights: 'رؤى سريعة',
+    daily: 'يومي',
+    monthly: 'شهري',
+    yearly: 'سنوي',
+    exportReport: 'تصدير التقرير كملف CSV',
+    salesTooltip: 'المبيعات: ${value}',
+    purchasesTooltip: 'المشتريات: ${value}',
+    profitTooltip: 'الربح: ${value}',
+    clientTooltip: 'العميل: {name}, المبيعات: ${value}',
+    supplierTooltip: 'المورد: {name}, المشتريات: ${value}',
     
     // Settings
     businessInformation: 'معلومات العمل',
@@ -870,7 +1173,63 @@ const translations: Record<Language, Translation> = {
     // Validation
     required: 'مطلوب',
     invalidEmail: 'عنوان بريد إلكتروني غير صحيح',
-    passwordTooShort: 'يجب أن تحتوي كلمة المرور على 4 أحرف على الأقل'
+    passwordTooShort: 'يجب أن تحتوي كلمة المرور على 4 أحرف على الأقل',
+
+    // New keys for Settings
+    appPreferences: 'إدارة تفضيلات عملك وتطبيقك',
+    saveChanges: 'حفظ التغييرات',
+    currentPasswordLabel: 'كلمة المرور الحالية',
+    enterCurrentPassword: 'أدخل كلمة المرور الحالية',
+    newPasswordLabel: 'كلمة مرور جديدة',
+    enterNewPassword: 'أدخل كلمة مرور جديدة',
+    confirmNewPasswordLabel: 'تأكيد كلمة المرور الجديدة',
+    enterConfirmNewPassword: 'تأكيد كلمة المرور الجديدة',
+    updatePassword: 'تحديث كلمة المرور',
+    dataStatistics: 'إحصائيات البيانات',
+    dataSize: 'حجم البيانات',
+    exportBackup: 'تصدير البيانات (نسخ احتياطي)',
+    importRestore: 'استيراد البيانات (استعادة)',
+    importConfirm: 'سيؤدي هذا إلى استبدال جميع البيانات الحالية بنسخة احتياطية من {date}. هل تريد المتابعة؟',
+    invalidBackup: 'تنسيق ملف النسخ الاحتياطي غير صالح',
+    errorReadingBackup: 'خطأ في قراءة ملف النسخ الاحتياطي',
+    backupTip1: '💡 النسخ الاحتياطي المنتظم يساعد في حماية بيانات عملك',
+    backupTip2: '• يتم حفظ النسخ الاحتياطية كملفات JSON على جهازك',
+    backupTip3: '• لا يتم إرسال أي بيانات إلى خوادم خارجية',
+    aboutApp: 'حول BizMob',
+    appVersionInfo: 'BizMob v1.0.0 - دفتر أعمال غير متصل',
+    localData: 'يتم تخزين جميع البيانات محليًا على جهازك',
+    noInternet: 'لا يتطلب اتصالاً بالإنترنت',
+    copyright: '© 2024 BizMob. إدارة أعمال بسيطة.',
+    selectLanguage: 'اختر اللغة',
+    languageChangeInfo: 'تُطبق تغييرات اللغة فورًا وتُحفظ تلقائيًا',
+    namesRequired: 'اسم العمل واسم المستخدم مطلوبان',
+
+    // History
+    transactionHistory: 'سجل المعاملات',
+    completeBusinessTransactionLog: 'سجل المعاملات التجارية الكامل',
+    loss: 'الخسارة',
+    filters: 'الفلاتر',
+    searchTransactions: 'البحث في المعاملات...',
+    transactionType: 'نوع المعاملة',
+    allTypes: 'جميع الأنواع',
+    salesOnly: 'المبيعات فقط',
+    purchasesOnly: 'المشتريات فقط',
+    dateRange: 'نطاق التاريخ',
+    allTime: 'كل الوقت',
+    today: 'اليوم',
+    last7Days: 'آخر 7 أيام',
+    last30Days: 'آخر 30 يومًا',
+    lastYear: 'السنة الماضية',
+    filterByParty: 'التصفية حسب العميل/المورد',
+    allParties: 'جميع الأطراف',
+    clearAllFilters: 'مسح جميع الفلاتر',
+    noTransactionsFound: 'لم يتم العثور على معاملات',
+    adjustFilters: 'حاول تعديل فلاترك',
+    startTransactions: 'ابدأ في إجراء المشتريات والمبيعات لرؤية سجل معاملاتك',
+    saleTo: 'البيع إلى',
+    purchaseFrom: 'الشراء من',
+    net: 'الصافي',
+    exportHistory: 'تصدير السجل كملف CSV'
   }
 };
 

@@ -4,7 +4,7 @@ import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
-import { ArrowLeft, History as HistoryIcon, TrendingUp, TrendingDown, Search, Filter, Calendar } from 'lucide-react';
+import { ArrowLeft, History as HistoryIcon, TrendingUp, TrendingDown, Search, Filter, Calendar, Download } from 'lucide-react';
 import { Purchase, Sale, Client } from '../types/business';
 import { useLanguage } from './LanguageContext';
 
@@ -26,7 +26,7 @@ interface Transaction {
 }
 
 export function History({ purchases, sales, clients, onClose }: HistoryProps) {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedFilter, setSelectedFilter] = useState('all');
   const [dateFilter, setDateFilter] = useState('all');
@@ -130,11 +130,11 @@ export function History({ purchases, sales, clients, onClose }: HistoryProps) {
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
-    return date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    return date.toLocaleDateString(language) + ' ' + date.toLocaleTimeString(language, { hour: '2-digit', minute: '2-digit' });
   };
 
   const formatDateShort = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString();
+    return new Date(dateString).toLocaleDateString(language);
   };
 
   // Group transactions by date
@@ -154,6 +154,44 @@ export function History({ purchases, sales, clients, onClose }: HistoryProps) {
 
   const groupedTransactions = groupTransactionsByDate();
 
+  // Export history as CSV
+  const handleExportHistory = () => {
+    const headers = [
+      t.date,
+      t.transactionType,
+      t.party,
+      t.description,
+      t.amount,
+      t.paymentStatus
+    ];
+
+    const rows = filteredTransactions.map(transaction => [
+      formatDate(transaction.date),
+      transaction.type === 'sale' ? t.saleTo : t.purchaseFrom,
+      transaction.party,
+      transaction.description,
+      transaction.amount.toFixed(2),
+      transaction.paymentStatus ? (transaction.paymentStatus === 'paid' ? t.paid : 
+                                  transaction.paymentStatus === 'partial' ? t.partial : t.unpaid) : ''
+    ]);
+
+    const csvContent = [
+      headers.join(','),
+      ...rows.map(row => row.join(','))
+    ].join('\n');
+
+    const dataBlob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(dataBlob);
+    
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `bizmob-history-${new Date().toISOString().split('T')[0]}.csv`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
@@ -165,53 +203,56 @@ export function History({ purchases, sales, clients, onClose }: HistoryProps) {
         >
           <ArrowLeft className="w-5 h-5" />
         </Button>
-        <h2 className="text-gray-800">{t.history}</h2>
-        <div className="w-9" />
+        <h2 className="text-lg sm:text-xl text-gray-800">{t.history}</h2>
+        <Button onClick={handleExportHistory} variant="outline" className="flex items-center gap-2">
+          <Download className="w-4 h-4" />
+          {t.exportHistory}
+        </Button>
       </div>
 
-      <div className="p-6 space-y-6">
+      <div className="p-4 sm:p-6 space-y-6">
         <div className="text-center">
           <div className="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
             <HistoryIcon className="w-8 h-8 text-purple-600" />
           </div>
-          <h3 className="text-gray-800">Transaction History</h3>
-          <p className="text-gray-600">Complete business transaction log</p>
+          <h3 className="text-base sm:text-lg text-gray-800">{t.transactionHistory}</h3>
+          <p className="text-sm text-gray-600">{t.completeBusinessTransactionLog}</p>
         </div>
 
         {/* Statistics */}
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-2 gap-4">
           <Card className="p-4 text-center">
-            <h3 className="text-blue-600">{stats.totalTransactions}</h3>
-            <p className="text-gray-600 text-sm">Total Transactions</p>
+            <h3 className="text-base sm:text-lg text-blue-600">{stats.totalTransactions}</h3>
+            <p className="text-xs sm:text-sm text-gray-600">{t.totalTransactions}</p>
           </Card>
           <Card className="p-4 text-center">
-            <h3 className={stats.profit >= 0 ? 'text-green-600' : 'text-red-600'}>
+            <h3 className={`text-base sm:text-lg ${stats.profit >= 0 ? 'text-green-600' : 'text-red-600'}`}>
               ${Math.abs(stats.profit).toLocaleString()}
             </h3>
-            <p className="text-gray-600 text-sm">
-              {stats.profit >= 0 ? 'Profit' : 'Loss'}
+            <p className="text-xs sm:text-sm text-gray-600">
+              {stats.profit >= 0 ? t.profit : t.loss}
             </p>
           </Card>
         </div>
 
         {/* Filters */}
         <Card className="p-4 space-y-4">
-          <h4 className="text-gray-800 flex items-center gap-2">
+          <h4 className="text-base sm:text-lg text-gray-800 flex items-center gap-2">
             <Filter className="w-4 h-4" />
-            Filters
+            {t.filters}
           </h4>
           
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             {/* Search */}
-            <div className="col-span-2">
+            <div className="col-span-1 sm:col-span-2">
               <div className="relative">
                 <Search className="w-4 h-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
                 <Input
                   type="text"
-                  placeholder="Search transactions..."
+                  placeholder={t.searchTransactions}
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-9"
+                  className="pl-9 text-sm"
                 />
               </div>
             </div>
@@ -219,37 +260,37 @@ export function History({ purchases, sales, clients, onClose }: HistoryProps) {
             {/* Type Filter */}
             <Select value={selectedFilter} onValueChange={setSelectedFilter}>
               <SelectTrigger>
-                <SelectValue placeholder="Transaction type" />
+                <SelectValue placeholder={t.transactionType} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All Types</SelectItem>
-                <SelectItem value="sale">Sales Only</SelectItem>
-                <SelectItem value="purchase">Purchases Only</SelectItem>
+                <SelectItem value="all">{t.allTypes}</SelectItem>
+                <SelectItem value="sale">{t.salesOnly}</SelectItem>
+                <SelectItem value="purchase">{t.purchasesOnly}</SelectItem>
               </SelectContent>
             </Select>
 
             {/* Date Filter */}
             <Select value={dateFilter} onValueChange={setDateFilter}>
               <SelectTrigger>
-                <SelectValue placeholder="Date range" />
+                <SelectValue placeholder={t.dateRange} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All Time</SelectItem>
-                <SelectItem value="today">Today</SelectItem>
-                <SelectItem value="week">Last 7 Days</SelectItem>
-                <SelectItem value="month">Last 30 Days</SelectItem>
-                <SelectItem value="year">Last Year</SelectItem>
+                <SelectItem value="all">{t.allTime}</SelectItem>
+                <SelectItem value="today">{t.today}</SelectItem>
+                <SelectItem value="week">{t.last7Days}</SelectItem>
+                <SelectItem value="month">{t.last30Days}</SelectItem>
+                <SelectItem value="year">{t.lastYear}</SelectItem>
               </SelectContent>
             </Select>
 
             {/* Party Filter */}
-            <div className="col-span-2">
+            <div className="col-span-1 sm:col-span-2">
               <Select value={selectedParty} onValueChange={setSelectedParty}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Filter by client/supplier" />
+                  <SelectValue placeholder={t.filterByParty} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all-parties">All Parties</SelectItem>
+                  <SelectItem value="all-parties">{t.allParties}</SelectItem>
                   {getAllParties().map((party) => (
                     <SelectItem key={party} value={party}>{party}</SelectItem>
                   ))}
@@ -268,9 +309,9 @@ export function History({ purchases, sales, clients, onClose }: HistoryProps) {
                 setDateFilter('all');
                 setSelectedParty('');
               }}
-              className="w-full"
+              className="w-full text-sm"
             >
-              Clear All Filters
+              {t.clearAllFilters}
             </Button>
           )}
         </Card>
@@ -280,11 +321,11 @@ export function History({ purchases, sales, clients, onClose }: HistoryProps) {
           {Object.keys(groupedTransactions).length === 0 ? (
             <Card className="p-8 text-center">
               <HistoryIcon className="w-12 h-12 text-gray-300 mx-auto mb-4" />
-              <h4 className="text-gray-800 mb-2">No transactions found</h4>
-              <p className="text-gray-600">
+              <h4 className="text-base sm:text-lg text-gray-800 mb-2">{t.noTransactionsFound}</h4>
+              <p className="text-sm text-gray-600">
                 {searchTerm || selectedFilter !== 'all' || dateFilter !== 'all' || selectedParty
-                  ? 'Try adjusting your filters'
-                  : 'Start making purchases and sales to see your transaction history'}
+                  ? t.adjustFilters
+                  : t.startTransactions}
               </p>
             </Card>
           ) : (
@@ -292,9 +333,9 @@ export function History({ purchases, sales, clients, onClose }: HistoryProps) {
               <Card key={date} className="p-4">
                 <div className="flex items-center gap-2 mb-4 pb-2 border-b border-gray-200">
                   <Calendar className="w-4 h-4 text-gray-600" />
-                  <h4 className="text-gray-800">{date}</h4>
-                  <span className="text-sm text-gray-500">
-                    ({dayTransactions.length} transactions)
+                  <h4 className="text-base sm:text-lg text-gray-800">{date}</h4>
+                  <span className="text-xs sm:text-sm text-gray-500">
+                    ({dayTransactions.length} {t.totalTransactions.toLowerCase()})
                   </span>
                 </div>
                 
@@ -315,20 +356,20 @@ export function History({ purchases, sales, clients, onClose }: HistoryProps) {
                         </div>
                         
                         <div>
-                          <h5 className="text-gray-800">
-                            {transaction.type === 'sale' ? 'Sale to' : 'Purchase from'} {transaction.party}
+                          <h5 className="text-sm sm:text-base text-gray-800">
+                            {transaction.type === 'sale' ? t.saleTo : t.purchaseFrom} {transaction.party}
                           </h5>
-                          <p className="text-sm text-gray-600 truncate max-w-48">
+                          <p className="text-xs sm:text-sm text-gray-600 truncate max-w-[150px] sm:max-w-[200px]">
                             {transaction.description}
                           </p>
                           <p className="text-xs text-gray-500">
-                            {new Date(transaction.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                            {new Date(transaction.date).toLocaleTimeString(language, { hour: '2-digit', minute: '2-digit' })}
                           </p>
                         </div>
                       </div>
                       
                       <div className="text-right">
-                        <div className={`text-lg font-medium ${
+                        <div className={`text-sm sm:text-lg font-medium ${
                           transaction.type === 'sale' ? 'text-green-600' : 'text-blue-600'
                         }`}>
                           {transaction.type === 'sale' ? '+' : '-'}${transaction.amount.toFixed(2)}
@@ -340,8 +381,8 @@ export function History({ purchases, sales, clients, onClose }: HistoryProps) {
                             transaction.paymentStatus === 'partial' ? 'bg-orange-100 text-orange-800' :
                             'bg-red-100 text-red-800'
                           }`}>
-                            {transaction.paymentStatus === 'debt' ? 'Unpaid' : 
-                             transaction.paymentStatus.charAt(0).toUpperCase() + transaction.paymentStatus.slice(1)}
+                            {transaction.paymentStatus === 'paid' ? t.paid :
+                             transaction.paymentStatus === 'partial' ? t.partial : t.unpaid}
                           </span>
                         )}
                       </div>
@@ -351,9 +392,9 @@ export function History({ purchases, sales, clients, onClose }: HistoryProps) {
                 
                 {/* Daily Summary */}
                 <div className="mt-4 pt-3 border-t border-gray-200">
-                  <div className="grid grid-cols-3 gap-4 text-center text-sm">
+                  <div className="grid grid-cols-3 gap-2 sm:gap-4 text-center text-xs sm:text-sm">
                     <div>
-                      <span className="text-gray-600">Sales: </span>
+                      <span className="text-gray-600">{t.sales}: </span>
                       <span className="text-green-600 font-medium">
                         ${dayTransactions
                           .filter(t => t.type === 'sale')
@@ -362,7 +403,7 @@ export function History({ purchases, sales, clients, onClose }: HistoryProps) {
                       </span>
                     </div>
                     <div>
-                      <span className="text-gray-600">Purchases: </span>
+                      <span className="text-gray-600">{t.purchases}: </span>
                       <span className="text-blue-600 font-medium">
                         ${dayTransactions
                           .filter(t => t.type === 'purchase')
@@ -371,7 +412,7 @@ export function History({ purchases, sales, clients, onClose }: HistoryProps) {
                       </span>
                     </div>
                     <div>
-                      <span className="text-gray-600">Net: </span>
+                      <span className="text-gray-600">{t.net}: </span>
                       <span className={`font-medium ${
                         (dayTransactions.filter(t => t.type === 'sale').reduce((sum, t) => sum + t.amount, 0) -
                          dayTransactions.filter(t => t.type === 'purchase').reduce((sum, t) => sum + t.amount, 0)) >= 0

@@ -57,7 +57,7 @@ export function Settings({
 
   const handleSaveBusiness = () => {
     if (!formData.businessName.trim() || !formData.userName.trim()) {
-      alert(t.businessNameRequired || 'Business name and user name are required');
+      alert(t.namesRequired);
       return;
     }
 
@@ -70,17 +70,17 @@ export function Settings({
 
   const handlePasswordChange = () => {
     if (formData.currentPassword !== businessData.password) {
-      alert(t.incorrectPassword || 'Current password is incorrect');
+      alert(t.incorrectPassword);
       return;
     }
 
     if (!formData.newPassword || formData.newPassword.length < 4) {
-      alert(t.passwordLength || 'New password must be at least 4 characters');
+      alert(t.passwordTooShort);
       return;
     }
 
     if (formData.newPassword !== formData.confirmPassword) {
-      alert(t.passwordMismatch || 'New passwords do not match');
+      alert(t.passwordsDoNotMatch);
       return;
     }
 
@@ -92,7 +92,7 @@ export function Settings({
       newPassword: '',
       confirmPassword: ''
     });
-    alert(t.passwordChanged || 'Password changed successfully');
+    alert(t.passwordChangedSuccessfully);
   };
 
   const handleExportData = () => {
@@ -134,8 +134,9 @@ export function Settings({
           const importedData = JSON.parse(e.target?.result as string);
           
           if (importedData.purchases && importedData.sales && importedData.debts && importedData.products && importedData.clients) {
+            const dateStr = new Date(importedData.exportDate).toLocaleDateString();
             const confirmImport = confirm(
-              `This will replace all current data with backup from ${new Date(importedData.exportDate).toLocaleDateString()}. Continue?`
+              t.importConfirm.replace('{date}', dateStr)
             );
             
             if (confirmImport) {
@@ -146,13 +147,13 @@ export function Settings({
                 products: importedData.products,
                 clients: importedData.clients
               });
-              alert('Data imported successfully');
+              alert(t.dataImportedSuccessfully);
             }
           } else {
-            alert('Invalid backup file format');
+            alert(t.invalidBackup);
           }
         } catch (error) {
-          alert('Error reading backup file');
+          alert(t.errorReadingBackup);
         }
       };
       reader.readAsText(file);
@@ -167,14 +168,14 @@ export function Settings({
     <div className="p-6 space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-gray-800">Settings</h1>
-        <p className="text-gray-600">Manage your business and app preferences</p>
+        <h1 className="text-gray-800">{t.settings}</h1>
+        <p className="text-gray-600">{t.appPreferences}</p>
       </div>
 
       {/* Business Information */}
       <Card className="p-6">
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-gray-800">Business Information</h3>
+          <h3 className="text-gray-800">{t.businessInformation}</h3>
           <Button 
             variant="ghost" 
             size="sm"
@@ -201,7 +202,7 @@ export function Settings({
             <div className="flex items-center space-x-3">
               <Building2 className="w-5 h-5 text-gray-400" />
               <div className="flex-1">
-                <Label>Business Name</Label>
+                <Label>{t.businessName}</Label>
                 {isEditingBusiness ? (
                   <Input 
                     value={formData.businessName} 
@@ -217,7 +218,7 @@ export function Settings({
             <div className="flex items-center space-x-3">
               <User className="w-5 h-5 text-gray-400" />
               <div className="flex-1">
-                <Label>User Name</Label>
+                <Label>{t.userName}</Label>
                 {isEditingBusiness ? (
                   <Input 
                     value={formData.userName} 
@@ -235,10 +236,10 @@ export function Settings({
             <div className="flex gap-3 pt-4">
               <Button onClick={handleSaveBusiness} className="bg-blue-600 hover:bg-blue-700 text-white">
                 <Save className="w-4 h-4 mr-2" />
-                Save Changes
+                {t.saveChanges}
               </Button>
               <Button variant="outline" onClick={() => setIsEditingBusiness(false)}>
-                Cancel
+                {t.cancel}
               </Button>
             </div>
           )}
@@ -247,7 +248,7 @@ export function Settings({
 
       {/* Security */}
       <Card className="p-6">
-        <h3 className="text-gray-800 mb-4">Security</h3>
+        <h3 className="text-gray-800 mb-4">{t.security}</h3>
         
         {!isChangingPassword ? (
           <Button 
@@ -256,50 +257,50 @@ export function Settings({
             onClick={() => setIsChangingPassword(true)}
           >
             <Lock className="w-4 h-4 mr-3" />
-            Change Password
+            {t.changePassword}
           </Button>
         ) : (
           <div className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="currentPassword">Current Password</Label>
+              <Label htmlFor="currentPassword">{t.currentPasswordLabel}</Label>
               <Input
                 id="currentPassword"
                 type="password"
                 value={formData.currentPassword}
                 onChange={(e) => setFormData({ ...formData, currentPassword: e.target.value })}
-                placeholder="Enter current password"
+                placeholder={t.enterCurrentPassword}
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="newPassword">New Password</Label>
+              <Label htmlFor="newPassword">{t.newPasswordLabel}</Label>
               <Input
                 id="newPassword"
                 type="password"
                 value={formData.newPassword}
                 onChange={(e) => setFormData({ ...formData, newPassword: e.target.value })}
-                placeholder="Enter new password"
+                placeholder={t.enterNewPassword}
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="confirmPassword">Confirm New Password</Label>
+              <Label htmlFor="confirmPassword">{t.confirmNewPasswordLabel}</Label>
               <Input
                 id="confirmPassword"
                 type="password"
                 value={formData.confirmPassword}
                 onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
-                placeholder="Confirm new password"
+                placeholder={t.enterConfirmNewPassword}
               />
             </div>
 
             <div className="flex gap-3">
               <Button onClick={handlePasswordChange} className="bg-green-600 hover:bg-green-700 text-white">
                 <Shield className="w-4 h-4 mr-2" />
-                Update Password
+                {t.updatePassword}
               </Button>
               <Button variant="outline" onClick={() => setIsChangingPassword(false)}>
-                Cancel
+                {t.cancel}
               </Button>
             </div>
           </div>
@@ -308,17 +309,17 @@ export function Settings({
 
       {/* Data Management */}
       <Card className="p-6">
-        <h3 className="text-gray-800 mb-4">Data Management</h3>
+        <h3 className="text-gray-800 mb-4">{t.dataManagement}</h3>
         
         <div className="space-y-4">
           <div className="bg-blue-50 p-4 rounded-lg">
-            <h4 className="text-blue-800 mb-2">Data Statistics</h4>
+            <h4 className="text-blue-800 mb-2">{t.dataStatistics}</h4>
             <div className="text-sm text-blue-700 space-y-1">
-              <p>• Total Transactions: {totalTransactions}</p>
-              <p>• Purchases: {purchases.length}</p>
-              <p>• Sales: {sales.length}</p>
-              <p>• Outstanding Debts: {debts.filter(d => d.totalDebt > 0).length}</p>
-              <p>• Data Size: {(dataSize / 1024).toFixed(2)} KB</p>
+              <p>• {t.totalTransactions}: {totalTransactions}</p>
+              <p>• {t.purchases}: {purchases.length}</p>
+              <p>• {t.sales}: {sales.length}</p>
+              <p>• {t.clientsWithDebt}: {debts.filter(d => d.totalDebt > 0).length}</p>
+              <p>• {t.dataSize}: {(dataSize / 1024).toFixed(2)} KB</p>
             </div>
           </div>
 
@@ -328,7 +329,7 @@ export function Settings({
               className="w-full bg-green-600 hover:bg-green-700 text-white justify-start"
             >
               <Download className="w-4 h-4 mr-3" />
-              Export Data (Backup)
+              {t.exportBackup}
             </Button>
             
             <Button 
@@ -337,29 +338,29 @@ export function Settings({
               className="w-full justify-start"
             >
               <Upload className="w-4 h-4 mr-3" />
-              Import Data (Restore)
+              {t.importRestore}
             </Button>
           </div>
 
           <div className="text-xs text-gray-500 mt-4">
-            <p>💡 Regular backups help protect your business data</p>
-            <p>• Backups are saved as JSON files on your device</p>
-            <p>• No data is sent to external servers</p>
+            <p>{t.backupTip1}</p>
+            <p>{t.backupTip2}</p>
+            <p>{t.backupTip3}</p>
           </div>
         </div>
       </Card>
 
       {/* App Information */}
       <Card className="p-6">
-        <h3 className="text-gray-800 mb-4">About BizMob</h3>
+        <h3 className="text-gray-800 mb-4">{t.aboutApp}</h3>
         <div className="space-y-2 text-sm text-gray-600">
           <div className="flex items-center gap-2">
             <Database className="w-4 h-4" />
-            <span>BizMob v1.0.0 - Offline Business Notebook</span>
+            <span>{t.appVersionInfo}</span>
           </div>
-          <p>All data is stored locally on your device</p>
-          <p>No internet connection required</p>
-          <p>© 2024 BizMob. Simple business management.</p>
+          <p>{t.localData}</p>
+          <p>{t.noInternet}</p>
+          <p>{t.copyright}</p>
         </div>
       </Card>
 
@@ -371,7 +372,7 @@ export function Settings({
         </h3>
         
         <div className="space-y-3">
-          <Label htmlFor="language">Select Language</Label>
+          <Label htmlFor="language">{t.selectLanguage}</Label>
           <Select value={language} onValueChange={(value: Language) => setLanguage(value)}>
             <SelectTrigger>
               <SelectValue />
@@ -405,7 +406,7 @@ export function Settings({
           </Select>
           
           <div className="text-xs text-gray-500">
-            Language changes apply immediately and are saved automatically
+            {t.languageChangeInfo}
           </div>
         </div>
       </Card>
@@ -417,7 +418,7 @@ export function Settings({
         className="w-full"
       >
         <LogOut className="w-4 h-4 mr-2" />
-        Logout
+        {t.logout}
       </Button>
     </div>
   );
