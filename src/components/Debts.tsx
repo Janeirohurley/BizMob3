@@ -18,7 +18,7 @@ import {
   Edit,
   CheckCircle,
 } from "lucide-react";
-import { Debt, Sale, BusinessData } from "../App";
+import { Debt, Sale, BusinessData } from "../types/business";
 import { useLanguage } from './LanguageContext';
 
 interface DebtsProps {

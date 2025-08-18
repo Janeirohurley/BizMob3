@@ -4,7 +4,7 @@ import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
 import { ArrowLeft, Users, Star, Calendar, DollarSign, Search } from 'lucide-react';
-import { Client, Sale } from '../App';
+import { Client, Sale } from '../types/business';
 import { useLanguage } from './LanguageContext';
 
 interface ClientsProps {

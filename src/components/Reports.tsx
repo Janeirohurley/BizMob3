@@ -2,15 +2,17 @@ import React, { useState } from 'react';
 import { Card } from './ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
 import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, ResponsiveContainer } from 'recharts';
-import { Purchase, Sale, Debt } from '../App';
+import { Purchase, Sale, Debt, Product, Client } from '../types/business';
 
 interface ReportsProps {
   purchases: Purchase[];
   sales: Sale[];
   debts: Debt[];
+  products: Product[];
+  clients: Client[];
 }
 
-export function Reports({ purchases, sales, debts }: ReportsProps) {
+export function Reports({ purchases, sales, debts, products, clients }: ReportsProps) {
   const [activeTab, setActiveTab] = useState('daily');
 
   // Calculate totals

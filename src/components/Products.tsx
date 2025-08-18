@@ -12,7 +12,7 @@ import {
   AlertTriangle,
   BarChart3,
 } from "lucide-react";
-import { Product, BusinessData } from "../App";
+import { Product, BusinessData } from "../types/business";
 import { useLanguage } from './LanguageContext';
 
 interface ProductsProps {

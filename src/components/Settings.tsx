@@ -18,7 +18,7 @@ import {
   Database,
   Globe
 } from 'lucide-react';
-import { BusinessData, Purchase, Sale, Debt, Product, Client } from '../App';
+import { BusinessData, Purchase, Sale, Debt, Product, Client } from '../types/business';
 import { useLanguage, Language } from './LanguageContext';
 
 interface SettingsProps {

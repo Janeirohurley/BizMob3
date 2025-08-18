@@ -5,7 +5,7 @@ import { Input } from './ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
 import { ArrowLeft, History as HistoryIcon, TrendingUp, TrendingDown, Search, Filter, Calendar } from 'lucide-react';
-import { Purchase, Sale, Client } from '../App';
+import { Purchase, Sale, Client } from '../types/business';
 import { useLanguage } from './LanguageContext';
 
 interface HistoryProps {
