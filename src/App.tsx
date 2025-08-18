@@ -1,20 +1,20 @@
 import React, { useState, useEffect } from "react";
-import { WelcomeScreen, ImportedData } from "./components/WelcomeScreen";
-import { Dashboard } from "./components/Dashboard";
-import { AddPurchase } from "./components/AddPurchase";
-import { AddSale } from "./components/AddSale";
-import { Debts } from "./components/Debts";
-import { Reports } from "./components/Reports";
-import { Settings } from "./components/Settings";
-import { BottomNavigation } from "./components/BottomNavigation";
-import { Clients } from "./components/Clients";
-import { History } from "./components/History";
-import { Products } from "./components/Products";
-import { TransactionsView } from "./components/TransactionsView";
-import { LanguageProvider, useLanguage } from "./components/LanguageContext";
-import { useBusinessData } from "./hooks/useBusinessData";
-import { BusinessData, ImportedData as ImportedBusinessData } from "./types/business";
-import { saveToStorage, loadFromStorage, STORAGE_KEYS } from "./utils/storageUtils";
+import { WelcomeScreen, ImportedData } from "@/components/WelcomeScreen";
+import { Dashboard } from "@/components/Dashboard";
+import { AddPurchase } from "@/components/AddPurchase";
+import { AddSale } from "@/components/AddSale";
+import { Debts } from "@/components/Debts";
+import { Reports } from "@/components/Reports";
+import { Settings } from "@/components/Settings";
+import { BottomNavigation } from "@/components/BottomNavigation";
+import { Clients } from "@/components/Clients";
+import { History } from "@/components/History";
+import { Products } from "@/components/Products";
+import { TransactionsView } from "@/components/TransactionsView";
+import { LanguageProvider, useLanguage } from "@/components/LanguageContext";
+import { useBusinessData } from "@/hooks/useBusinessData";
+import { BusinessData, ImportedData as ImportedBusinessData } from "@/types/business";
+import { saveToStorage, loadFromStorage, STORAGE_KEYS } from "@/utils/storageUtils";
 
 function AppContent() {
   const { language } = useLanguage();
