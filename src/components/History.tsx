@@ -4,16 +4,17 @@ import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
-import { ArrowLeft, History as HistoryIcon, TrendingUp, TrendingDown, Search, Filter, Calendar, Download } from 'lucide-react';
+import { ArrowLeft, History as HistoryIcon, TrendingUp, TrendingDown, Search, Filter, Calendar, Download, Edit, FileText } from 'lucide-react';
 import { Purchase, Sale, Client } from '../types/business';
 import { useLanguage } from './LanguageContext';
-import { useBusinessData } from '@/hooks/useBusinessData';
 
 interface HistoryProps {
   purchases: Purchase[];
   sales: Sale[];
   clients: Client[];
   onClose: () => void;
+  onEditPurchase?: (purchase: Purchase) => void;
+  onEditSale?: (sale: Sale) => void;
 }
 
 interface Transaction {
@@ -26,7 +27,7 @@ interface Transaction {
   paymentStatus?: string;
 }
 
-export function History({ purchases, sales, clients, onClose }: HistoryProps) {
+export function History({ purchases, sales, clients, onClose, onEditPurchase, onEditSale }: HistoryProps) {
   const { t, language } = useLanguage();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedFilter, setSelectedFilter] = useState('all');
@@ -370,7 +371,26 @@ export function History({ purchases, sales, clients, onClose }: HistoryProps) {
                         </div>
                       </div>
 
-                      <div className="">
+                      <div className="flex items-center gap-2">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            if (transaction.type === 'purchase' && onEditPurchase) {
+                              const purchase = purchases.find(p => p.id === transaction.id);
+                              if (purchase) onEditPurchase(purchase);
+                            } else if (transaction.type === 'sale' && onEditSale) {
+                              const sale = sales.find(s => s.id === transaction.id);
+                              if (sale) onEditSale(sale);
+                            }
+                          }}
+                          className="p-1 h-auto"
+                        >
+                          <Edit className="w-4 h-4" />
+                        </Button>
+                        
+                        <div className="text-right">
                         <div className={`text-sm  font-medium ${transaction.type === 'sale' ? 'text-green-600' : 'text-blue-600'
                           }`}>
                           {transaction.type === 'sale' ? '+' : ''}{formatCurrency(transaction.amount)}
@@ -385,6 +405,7 @@ export function History({ purchases, sales, clients, onClose }: HistoryProps) {
                               transaction.paymentStatus === 'partial' ? t.partial : t.unpaid}
                           </span>
                         )}
+                        </div>
                       </div>
                     </div>
                   ))}

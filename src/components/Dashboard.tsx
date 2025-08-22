@@ -2,6 +2,7 @@ import React from 'react';
 import { Card } from './ui/card';
 import { Button } from './ui/button';
 import { Plus, TrendingUp, TrendingDown, DollarSign, Users, AlertTriangle, Calendar } from 'lucide-react';
+import { FileText } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, ResponsiveContainer } from 'recharts';
 import { BusinessData, Purchase, Sale, Debt } from '../types/business';
 
@@ -232,6 +233,14 @@ export function Dashboard({
           >
             <TrendingUp className="w-4 h-4" />
             <span className="text-sm">History</span>
+          </Button>
+          <Button 
+            onClick={() => window.dispatchEvent(new CustomEvent('navigate', { detail: 'audit-trail' }))}
+            variant="outline"
+            className="border-gray-300 text-gray-600 hover:bg-gray-50 flex items-center gap-2 h-12 col-span-2"
+          >
+            <FileText className="w-4 h-4" />
+            <span className="text-sm">Journal d'audit</span>
           </Button>
         </div>
       </Card>

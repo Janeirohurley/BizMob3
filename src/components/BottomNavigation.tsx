@@ -11,7 +11,8 @@ import {
   ShoppingCart,
   FileText,
   CreditCard,
-  BarChart3
+  BarChart3,
+  FileText
 } from 'lucide-react';
 import { useLanguage } from './LanguageContext';
 
@@ -156,6 +157,17 @@ export function BottomNavigation({ currentScreen, onScreenChange }: BottomNaviga
               >
                 <CreditCard className="w-4 h-4 mr-2" />
                 { t.debts}
+              </Button>
+              <Button
+                variant="ghost"
+                onClick={() => {
+                  onScreenChange('audit-trail');
+                  setShowAnalyticsPopover(false);
+                }}
+                className="w-full justify-start"
+              >
+                <FileText className="w-4 h-4 mr-2" />
+                Journal d'audit
               </Button>
             </div>
           </PopoverContent>

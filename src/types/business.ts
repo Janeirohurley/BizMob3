@@ -72,6 +72,28 @@ export interface DebtPayment {
   paymentMethod?: string;
 }
 
+export interface AuditLog {
+  id: string;
+  date: string;
+  action: 'CREATE' | 'UPDATE' | 'DELETE' | 'PAYMENT';
+  entityType: 'PURCHASE' | 'SALE' | 'DEBT' | 'PRODUCT' | 'CLIENT';
+  entityId: string;
+  entityName: string;
+  userId: string;
+  changes: {
+    field: string;
+    oldValue: any;
+    newValue: any;
+  }[];
+  description: string;
+  metadata?: {
+    clientName?: string;
+    productName?: string;
+    amount?: number;
+    paymentMethod?: string;
+  };
+}
+
 export interface Debt {
   id: string;
   clientName: string;

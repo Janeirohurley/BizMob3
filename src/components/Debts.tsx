@@ -3,6 +3,7 @@ import { Card } from "./ui/card";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
 import {
   Dialog,
   DialogContent,
@@ -17,9 +18,9 @@ import {
   DollarSign,
   Edit,
   CheckCircle,
+  FileText,
 } from "lucide-react";
 import { Debt, Sale, BusinessData } from "../types/business";
-import { useLanguage } from './LanguageContext';
 
 interface DebtsProps {
   debts: Debt[];
@@ -43,6 +44,8 @@ export function Debts({
     null,
   );
   const [paymentAmount, setPaymentAmount] = useState("");
+  const [paymentMethod, setPaymentMethod] = useState("cash");
+  const [showPaymentHistory, setShowPaymentHistory] = useState<string | null>(null);
 
   const handlePayment = (debt: Debt) => {
     const amount = parseFloat(paymentAmount);
@@ -52,13 +55,14 @@ export function Debts({
     }
 
     const newDebtAmount = debt.totalDebt - amount;
-    onRecordPayment(debt.id, amount, "cash");
+    onRecordPayment(debt.id, amount, paymentMethod);
     setEditingDebt(null);
     setPaymentAmount("");
+    setPaymentMethod("cash");
   };
 
   const markAsPaid = (debt: Debt) => {
-    onRecordPayment(debt.id, debt.totalDebt, "cash");
+    onRecordPayment(debt.id, debt.totalDebt, paymentMethod);
   };
 
   const getClientSales = (clientName: string) => {
@@ -185,6 +189,24 @@ export function Debts({
                                 }
                               />
                             </div>
+                            
+                            <div className="space-y-2">
+                              <Label htmlFor="paymentMethod">
+                                {t.paymentMethod}
+                              </Label>
+                              <Select value={paymentMethod} onValueChange={setPaymentMethod}>
+                                <SelectTrigger>
+                                  <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="cash">{t.cash}</SelectItem>
+                                  <SelectItem value="transfer">{t.transfer}</SelectItem>
+                                  <SelectItem value="check">{t.check}</SelectItem>
+                                  <SelectItem value="other">{t.other}</SelectItem>
+                                </SelectContent>
+                              </Select>
+                            </div>
+                            
                             <div className="text-sm text-gray-600">
                               {t.outstandingDebt}: {formatCurrency(debt.totalDebt)}
                             </div>
@@ -217,6 +239,16 @@ export function Debts({
                       >
                         <CheckCircle className="w-4 h-4 mr-1" />
                         {t.paid}
+                      </Button>
+                      
+                      <Button
+                        onClick={() => setShowPaymentHistory(debt.id)}
+                        variant="outline"
+                        size="sm"
+                        className="text-blue-600 border-blue-300 hover:bg-blue-50"
+                      >
+                        <FileText className="w-4 h-4 mr-1" />
+                        Historique
                       </Button>
                     </div>
                   </div>

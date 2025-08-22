@@ -6,6 +6,7 @@ export const STORAGE_KEYS = {
   PRODUCTS: "bizmob_products",
   CLIENTS: "bizmob_clients",
   DEBT_PAYMENTS: "bizmob_debt_payments",
+  AUDIT_LOGS: "bizmob_audit_logs",
   LANGUAGE: "bizmob_language",
 } as const;
 

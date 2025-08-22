@@ -10,10 +10,13 @@ import { BottomNavigation } from "./components/BottomNavigation";
 import { Clients } from "./components/Clients";
 import { History } from "./components/History";
 import { Products } from "./components/Products";
+import { AuditTrail } from "./components/AuditTrail";
+import { EditPurchase } from "./components/EditPurchase";
+import { EditSale } from "./components/EditSale";
 import { TransactionsView } from "./components/TransactionsView";
 import { LanguageProvider, useLanguage } from "./components/LanguageContext";
 import { useBusinessData } from "@/hooks/useBusinessData";
-import { BusinessData, ImportedData as ImportedBusinessData } from "@/types/business";
+import { BusinessData, ImportedData as ImportedBusinessData, Purchase, Sale } from "@/types/business";
 import { saveToStorage, loadFromStorage, STORAGE_KEYS } from "@/utils/storageUtils";
 
 function AppContent() {
@@ -26,16 +29,23 @@ function AppContent() {
     products,
     clients,
     debtPayments,
+    auditLogs,
     notifications,
     updateBusinessData,
     addPurchase,
     addSale,
+    updatePurchase,
+    updateSale,
+    deletePurchase,
+    deleteSale,
     recordDebtPayment,
     formatCurrency,
   } = useBusinessData();
 
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [currentScreen, setCurrentScreen] = useState("dashboard");
+  const [editingPurchase, setEditingPurchase] = useState<Purchase | null>(null);
+  const [editingSale, setEditingSale] = useState<Sale | null>(null);
   const [pendingImportData, setPendingImportData] = useState<ImportedBusinessData | null>(null);
 
   // Listen for navigation events from Dashboard
@@ -112,6 +122,34 @@ function AppContent() {
   };
 
   const renderScreen = () => {
+    if (editingPurchase) {
+      return (
+        <EditPurchase
+          purchase={editingPurchase}
+          onSave={updatePurchase}
+          onDelete={deletePurchase}
+          onClose={() => setEditingPurchase(null)}
+        />
+      );
+    }
+
+    if (editingSale) {
+      const hasAssociatedPayments = debtPayments.some(payment => 
+        payment.debtId === editingSale.id || 
+        debts.some(debt => debt.salesIds.includes(editingSale.id) && debt.id === payment.debtId)
+      );
+      
+      return (
+        <EditSale
+          sale={editingSale}
+          onSave={updateSale}
+          onDelete={deleteSale}
+          onClose={() => setEditingSale(null)}
+          hasAssociatedPayments={hasAssociatedPayments}
+        />
+      );
+    }
+
     switch (currentScreen) {
       case "dashboard":
         return (
@@ -167,6 +205,8 @@ function AppContent() {
             sales={sales}
             clients={clients}
             onClose={() => setCurrentScreen("dashboard")}
+            onEditPurchase={setEditingPurchase}
+            onEditSale={setEditingSale}
           />
         );
       case "debts":
@@ -218,6 +258,12 @@ function AppContent() {
               saveToStorage(STORAGE_KEYS.CLIENTS, data.clients || []);
               window.location.reload();
             }}
+          />
+        );
+      case "audit-trail":
+        return (
+          <AuditTrail
+            onClose={() => setCurrentScreen("dashboard")}
           />
         );
       default:

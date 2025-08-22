@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
-import { BusinessData, Purchase, Sale, Product, Client, Debt, DebtPayment } from '../types/business';
+import { BusinessData, Purchase, Sale, Product, Client, Debt, DebtPayment, AuditLog } from '../types/business';
 import { saveToStorage, loadFromStorage, STORAGE_KEYS } from '../utils/storageUtils';
+import { createAuditLog, saveAuditLog, getAuditLogs, compareObjects } from '../utils/auditUtils';
 import { 
   updateProductsFromPurchases, 
   updateProductsFromSales, 
@@ -25,6 +26,7 @@ export const useBusinessData = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [clients, setClients] = useState<Client[]>([]);
   const [debtPayments, setDebtPayments] = useState<DebtPayment[]>([]);
+  const [auditLogs, setAuditLogs] = useState<AuditLog[]>([]);
   const [notifications, setNotifications] = useState<string[]>([]);
 
   // Load data from localStorage on startup
@@ -45,6 +47,7 @@ export const useBusinessData = () => {
     setProducts(loadFromStorage(STORAGE_KEYS.PRODUCTS, []));
     setClients(loadFromStorage(STORAGE_KEYS.CLIENTS, []));
     setDebtPayments(loadFromStorage(STORAGE_KEYS.DEBT_PAYMENTS, []));
+    setAuditLogs(loadFromStorage(STORAGE_KEYS.AUDIT_LOGS, []));
   }, []);
 
   // Update products when purchases change
@@ -93,6 +96,29 @@ export const useBusinessData = () => {
     const updatedPurchases = [...purchases, newPurchase];
     setPurchases(updatedPurchases);
     saveToStorage(STORAGE_KEYS.PURCHASES, updatedPurchases);
+
+    // Create audit log
+    const auditLog = createAuditLog(
+      'CREATE',
+      'PURCHASE',
+      newPurchase.id,
+      newPurchase.productName,
+      businessData.userName,
+      [
+        { field: 'supplierName', oldValue: null, newValue: purchase.supplierName },
+        { field: 'productName', oldValue: null, newValue: purchase.productName },
+        { field: 'quantity', oldValue: null, newValue: purchase.quantity },
+        { field: 'unitPrice', oldValue: null, newValue: purchase.unitPrice },
+        { field: 'totalPrice', oldValue: null, newValue: purchase.totalPrice }
+      ],
+      `Achat créé: ${purchase.productName} (${purchase.quantity} unités) de ${purchase.supplierName}`,
+      {
+        productName: purchase.productName,
+        amount: purchase.totalPrice
+      }
+    );
+    saveAuditLog(auditLog);
+    setAuditLogs(prev => [auditLog, ...prev]);
   };
 
   const addSale = (sale: Omit<Sale, "id" | "date">) => {
@@ -115,6 +141,28 @@ export const useBusinessData = () => {
     const updatedSales = [...sales, newSale];
     setSales(updatedSales);
     saveToStorage(STORAGE_KEYS.SALES, updatedSales);
+
+    // Create audit log
+    const auditLog = createAuditLog(
+      'CREATE',
+      'SALE',
+      newSale.id,
+      `Vente à ${sale.clientName}`,
+      businessData.userName,
+      [
+        { field: 'clientName', oldValue: null, newValue: sale.clientName },
+        { field: 'items', oldValue: null, newValue: sale.items },
+        { field: 'totalAmount', oldValue: null, newValue: sale.totalAmount },
+        { field: 'paymentStatus', oldValue: null, newValue: sale.paymentStatus }
+      ],
+      `Vente créée: ${sale.items.map(item => `${item.productName} (${item.quantity})`).join(', ')} pour ${sale.clientName}`,
+      {
+        clientName: sale.clientName,
+        amount: sale.totalAmount
+      }
+    );
+    saveAuditLog(auditLog);
+    setAuditLogs(prev => [auditLog, ...prev]);
 
     // Update debts if needed
     if (sale.paymentStatus === "debt" || (sale.paymentStatus === "partial" && sale.remainingDebt && sale.remainingDebt > 0)) {
@@ -168,6 +216,27 @@ export const useBusinessData = () => {
     setDebtPayments(updatedPayments);
     saveToStorage(STORAGE_KEYS.DEBT_PAYMENTS, updatedPayments);
 
+    // Create audit log for payment
+    const auditLog = createAuditLog(
+      'PAYMENT',
+      'DEBT',
+      debtId,
+      debt.clientName,
+      businessData.userName,
+      [
+        { field: 'totalDebt', oldValue: previousDebt, newValue: newDebt },
+        { field: 'amountPaid', oldValue: 0, newValue: amountPaid }
+      ],
+      `Paiement de ${amountPaid} enregistré pour ${debt.clientName}. Dette réduite de ${previousDebt} à ${newDebt}`,
+      {
+        clientName: debt.clientName,
+        amount: amountPaid,
+        paymentMethod: paymentMethod || 'cash'
+      }
+    );
+    saveAuditLog(auditLog);
+    setAuditLogs(prev => [auditLog, ...prev]);
+
     // Update debt
     const updatedDebts = debts.map((d) =>
       d.id === debtId ? { ...d, totalDebt: newDebt } : d,
@@ -189,6 +258,136 @@ export const useBusinessData = () => {
     return `${amount} ${businessData.currencySymbol}`;
   };
 
+  const updatePurchase = (purchaseId: string, updatedData: Partial<Purchase>) => {
+    const existingPurchase = purchases.find(p => p.id === purchaseId);
+    if (!existingPurchase) return;
+
+    const changes = compareObjects(existingPurchase, { ...existingPurchase, ...updatedData });
+    
+    const updatedPurchases = purchases.map(p => 
+      p.id === purchaseId ? { ...p, ...updatedData } : p
+    );
+    setPurchases(updatedPurchases);
+    saveToStorage(STORAGE_KEYS.PURCHASES, updatedPurchases);
+
+    // Create audit log
+    if (changes.length > 0) {
+      const auditLog = createAuditLog(
+        'UPDATE',
+        'PURCHASE',
+        purchaseId,
+        existingPurchase.productName,
+        businessData.userName,
+        changes,
+        `Achat modifié: ${existingPurchase.productName}`,
+        {
+          productName: existingPurchase.productName,
+          amount: existingPurchase.totalPrice
+        }
+      );
+      saveAuditLog(auditLog);
+      setAuditLogs(prev => [auditLog, ...prev]);
+    }
+  };
+
+  const updateSale = (saleId: string, updatedData: Partial<Sale>) => {
+    const existingSale = sales.find(s => s.id === saleId);
+    if (!existingSale) return;
+
+    const changes = compareObjects(existingSale, { ...existingSale, ...updatedData });
+    
+    const updatedSales = sales.map(s => 
+      s.id === saleId ? { ...s, ...updatedData } : s
+    );
+    setSales(updatedSales);
+    saveToStorage(STORAGE_KEYS.SALES, updatedSales);
+
+    // Create audit log
+    if (changes.length > 0) {
+      const auditLog = createAuditLog(
+        'UPDATE',
+        'SALE',
+        saleId,
+        `Vente à ${existingSale.clientName}`,
+        businessData.userName,
+        changes,
+        `Vente modifiée: ${existingSale.clientName}`,
+        {
+          clientName: existingSale.clientName,
+          amount: existingSale.totalAmount
+        }
+      );
+      saveAuditLog(auditLog);
+      setAuditLogs(prev => [auditLog, ...prev]);
+    }
+  };
+
+  const deletePurchase = (purchaseId: string) => {
+    const existingPurchase = purchases.find(p => p.id === purchaseId);
+    if (!existingPurchase) return;
+
+    const updatedPurchases = purchases.filter(p => p.id !== purchaseId);
+    setPurchases(updatedPurchases);
+    saveToStorage(STORAGE_KEYS.PURCHASES, updatedPurchases);
+
+    // Create audit log
+    const auditLog = createAuditLog(
+      'DELETE',
+      'PURCHASE',
+      purchaseId,
+      existingPurchase.productName,
+      businessData.userName,
+      [
+        { field: 'deleted', oldValue: false, newValue: true }
+      ],
+      `Achat supprimé: ${existingPurchase.productName} de ${existingPurchase.supplierName}`,
+      {
+        productName: existingPurchase.productName,
+        amount: existingPurchase.totalPrice
+      }
+    );
+    saveAuditLog(auditLog);
+    setAuditLogs(prev => [auditLog, ...prev]);
+  };
+
+  const deleteSale = (saleId: string) => {
+    const existingSale = sales.find(s => s.id === saleId);
+    if (!existingSale) return;
+
+    // Check if sale has associated debt payments
+    const hasPayments = debtPayments.some(payment => 
+      payment.debtId === saleId || 
+      debts.some(debt => debt.salesIds.includes(saleId) && debt.id === payment.debtId)
+    );
+
+    if (hasPayments) {
+      throw new Error('Cette vente a des paiements associés et ne peut pas être supprimée');
+    }
+
+    const updatedSales = sales.filter(s => s.id !== saleId);
+    setSales(updatedSales);
+    saveToStorage(STORAGE_KEYS.SALES, updatedSales);
+
+    // Create audit log
+    const auditLog = createAuditLog(
+      'DELETE',
+      'SALE',
+      saleId,
+      `Vente à ${existingSale.clientName}`,
+      businessData.userName,
+      [
+        { field: 'deleted', oldValue: false, newValue: true }
+      ],
+      `Vente supprimée: ${existingSale.clientName}`,
+      {
+        clientName: existingSale.clientName,
+        amount: existingSale.totalAmount
+      }
+    );
+    saveAuditLog(auditLog);
+    setAuditLogs(prev => [auditLog, ...prev]);
+  };
+
   return {
     businessData,
     purchases,
@@ -197,10 +396,15 @@ export const useBusinessData = () => {
     products,
     clients,
     debtPayments,
+    auditLogs,
     notifications,
     updateBusinessData,
     addPurchase,
     addSale,
+    updatePurchase,
+    updateSale,
+    deletePurchase,
+    deleteSale,
     recordDebtPayment,
     formatCurrency,
   };

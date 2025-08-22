@@ -245,6 +245,51 @@ export interface Translation {
   purchaseFrom: string;
   net: string;
   exportHistory: string;
+
+  // CRUD et Audit Trail
+  created: string;
+  updated: string;
+  deleted: string;
+  recordedPayment: string;
+  auditTrail: string;
+  viewAuditTrail: string;
+  modifications: string;
+  originalValue: string;
+  newValue: string;
+  modifiedBy: string;
+  modifiedOn: string;
+  noModifications: string;
+  editPurchase: string;
+  editSale: string;
+  deletePurchase: string;
+  deleteSale: string;
+  confirmDelete: string;
+  deleteConfirmation: string;
+  cannotDeleteSale: string;
+  saleHasPayments: string;
+  field: string;
+  oldValue: string;
+  newValue: string;
+  action: string;
+  entityType: string;
+  changeHistory: string;
+  viewChanges: string;
+  noChangesRecorded: string;
+  allChanges: string;
+  filterByEntity: string;
+  filterByAction: string;
+  allActions: string;
+  allEntities: string;
+  paymentHistory: string;
+  viewPaymentHistory: string;
+  paymentDetails: string;
+  previousAmount: string;
+  newAmount: string;
+  paymentMethod: string;
+  cash: string;
+  transfer: string;
+  check: string;
+  other: string;
 }
 
 const translations: Record<Language, Translation> = {
@@ -737,7 +782,52 @@ const translations: Record<Language, Translation> = {
     saleTo: 'Vente à',
     purchaseFrom: 'Achat de',
     net: 'Net',
-    exportHistory: 'Exporter l\'historique en CSV'
+    exportHistory: 'Exporter l\'historique en CSV',
+
+    // CRUD et Audit Trail
+    created: 'Créé',
+    updated: 'Modifié',
+    deleted: 'Supprimé',
+    recordedPayment: 'Paiement enregistré de',
+    auditTrail: 'Journal d\'audit',
+    viewAuditTrail: 'Voir le journal d\'audit',
+    modifications: 'Modifications',
+    originalValue: 'Valeur originale',
+    newValue: 'Nouvelle valeur',
+    modifiedBy: 'Modifié par',
+    modifiedOn: 'Modifié le',
+    noModifications: 'Aucune modification',
+    editPurchase: 'Modifier l\'achat',
+    editSale: 'Modifier la vente',
+    deletePurchase: 'Supprimer l\'achat',
+    deleteSale: 'Supprimer la vente',
+    confirmDelete: 'Confirmer la suppression',
+    deleteConfirmation: 'Êtes-vous sûr de vouloir supprimer cet élément ?',
+    cannotDeleteSale: 'Impossible de supprimer la vente',
+    saleHasPayments: 'Cette vente a des paiements associés et ne peut pas être supprimée',
+    field: 'Champ',
+    oldValue: 'Ancienne valeur',
+    newValue: 'Nouvelle valeur',
+    action: 'Action',
+    entityType: 'Type',
+    changeHistory: 'Historique des modifications',
+    viewChanges: 'Voir les modifications',
+    noChangesRecorded: 'Aucune modification enregistrée',
+    allChanges: 'Toutes les modifications',
+    filterByEntity: 'Filtrer par entité',
+    filterByAction: 'Filtrer par action',
+    allActions: 'Toutes les actions',
+    allEntities: 'Toutes les entités',
+    paymentHistory: 'Historique des paiements',
+    viewPaymentHistory: 'Voir l\'historique des paiements',
+    paymentDetails: 'Détails du paiement',
+    previousAmount: 'Montant précédent',
+    newAmount: 'Nouveau montant',
+    paymentMethod: 'Méthode de paiement',
+    cash: 'Espèces',
+    transfer: 'Virement',
+    check: 'Chèque',
+    other: 'Autre'
   },
   
   es: {
@@ -984,7 +1074,52 @@ const translations: Record<Language, Translation> = {
     saleTo: 'Venta a',
     purchaseFrom: 'Compra de',
     net: 'Neto',
-    exportHistory: 'Exportar historial como CSV'
+    exportHistory: 'Exportar historial como CSV',
+
+    // CRUD et Audit Trail
+    created: 'Creado',
+    updated: 'Actualizado',
+    deleted: 'Eliminado',
+    recordedPayment: 'Pago registrado de',
+    auditTrail: 'Registro de auditoría',
+    viewAuditTrail: 'Ver registro de auditoría',
+    modifications: 'Modificaciones',
+    originalValue: 'Valor original',
+    newValue: 'Nuevo valor',
+    modifiedBy: 'Modificado por',
+    modifiedOn: 'Modificado el',
+    noModifications: 'Sin modificaciones',
+    editPurchase: 'Editar compra',
+    editSale: 'Editar venta',
+    deletePurchase: 'Eliminar compra',
+    deleteSale: 'Eliminar venta',
+    confirmDelete: 'Confirmar eliminación',
+    deleteConfirmation: '¿Estás seguro de que quieres eliminar este elemento?',
+    cannotDeleteSale: 'No se puede eliminar la venta',
+    saleHasPayments: 'Esta venta tiene pagos asociados y no se puede eliminar',
+    field: 'Campo',
+    oldValue: 'Valor anterior',
+    newValue: 'Nuevo valor',
+    action: 'Acción',
+    entityType: 'Tipo',
+    changeHistory: 'Historial de cambios',
+    viewChanges: 'Ver cambios',
+    noChangesRecorded: 'No se registraron cambios',
+    allChanges: 'Todos los cambios',
+    filterByEntity: 'Filtrar por entidad',
+    filterByAction: 'Filtrar por acción',
+    allActions: 'Todas las acciones',
+    allEntities: 'Todas las entidades',
+    paymentHistory: 'Historial de pagos',
+    viewPaymentHistory: 'Ver historial de pagos',
+    paymentDetails: 'Detalles del pago',
+    previousAmount: 'Cantidad anterior',
+    newAmount: 'Nueva cantidad',
+    paymentMethod: 'Método de pago',
+    cash: 'Efectivo',
+    transfer: 'Transferencia',
+    check: 'Cheque',
+    other: 'Otro'
   },
   
   ar: {
@@ -1229,7 +1364,52 @@ const translations: Record<Language, Translation> = {
     saleTo: 'البيع إلى',
     purchaseFrom: 'الشراء من',
     net: 'الصافي',
-    exportHistory: 'تصدير السجل كملف CSV'
+    exportHistory: 'تصدير السجل كملف CSV',
+
+    // CRUD et Audit Trail
+    created: 'تم الإنشاء',
+    updated: 'تم التحديث',
+    deleted: 'تم الحذف',
+    recordedPayment: 'تم تسجيل دفعة بقيمة',
+    auditTrail: 'سجل المراجعة',
+    viewAuditTrail: 'عرض سجل المراجعة',
+    modifications: 'التعديلات',
+    originalValue: 'القيمة الأصلية',
+    newValue: 'القيمة الجديدة',
+    modifiedBy: 'تم التعديل بواسطة',
+    modifiedOn: 'تم التعديل في',
+    noModifications: 'لا توجد تعديلات',
+    editPurchase: 'تعديل المشترى',
+    editSale: 'تعديل المبيع',
+    deletePurchase: 'حذف المشترى',
+    deleteSale: 'حذف المبيع',
+    confirmDelete: 'تأكيد الحذف',
+    deleteConfirmation: 'هل أنت متأكد من أنك تريد حذف هذا العنصر؟',
+    cannotDeleteSale: 'لا يمكن حذف المبيع',
+    saleHasPayments: 'هذا المبيع له مدفوعات مرتبطة ولا يمكن حذفه',
+    field: 'الحقل',
+    oldValue: 'القيمة القديمة',
+    newValue: 'القيمة الجديدة',
+    action: 'الإجراء',
+    entityType: 'النوع',
+    changeHistory: 'تاريخ التغييرات',
+    viewChanges: 'عرض التغييرات',
+    noChangesRecorded: 'لم يتم تسجيل تغييرات',
+    allChanges: 'جميع التغييرات',
+    filterByEntity: 'تصفية حسب الكيان',
+    filterByAction: 'تصفية حسب الإجراء',
+    allActions: 'جميع الإجراءات',
+    allEntities: 'جميع الكيانات',
+    paymentHistory: 'تاريخ المدفوعات',
+    viewPaymentHistory: 'عرض تاريخ المدفوعات',
+    paymentDetails: 'تفاصيل الدفع',
+    previousAmount: 'المبلغ السابق',
+    newAmount: 'المبلغ الجديد',
+    paymentMethod: 'طريقة الدفع',
+    cash: 'نقدي',
+    transfer: 'تحويل',
+    check: 'شيك',
+    other: 'أخرى'
   }
 };
 
