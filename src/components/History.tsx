@@ -7,6 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '.
 import { ArrowLeft, History as HistoryIcon, TrendingUp, TrendingDown, Search, Filter, Calendar, Download, Edit, FileText } from 'lucide-react';
 import { Purchase, Sale, Client } from '../types/business';
 import { useLanguage } from './LanguageContext';
+import { useBusinessData } from '@/hooks/useBusinessData';
 
 interface HistoryProps {
   purchases: Purchase[];

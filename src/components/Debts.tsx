@@ -21,6 +21,7 @@ import {
   FileText,
 } from "lucide-react";
 import { Debt, Sale, BusinessData } from "../types/business";
+import { useLanguage } from "./LanguageContext";
 
 interface DebtsProps {
   debts: Debt[];

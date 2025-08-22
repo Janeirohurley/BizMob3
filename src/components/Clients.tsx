@@ -22,7 +22,7 @@ export function Clients({ clients, sales, debtPayments, onClose }: ClientsProps)
   const {
     debts,
   } = useBusinessData();
-  console.log({clients},{debtPayments},{debts})
+  console.log({ clients }, { debtPayments }, { debts })
   // Filter clients based on search term
   const filteredClients = clients.filter(client =>
     client.name.toLowerCase().includes(searchTerm.toLowerCase())
@@ -160,13 +160,13 @@ export function Clients({ clients, sales, debtPayments, onClose }: ClientsProps)
                       <div className="space-y-2">
                         <div className="flex justify-between text-sm">
                           <span className="text-orange-700">Remaining debt:</span>
-                          <span className="text-orange-800 font-medium">${sale.remainingDebt.toFixed(2)}</span>
+                          <span className="text-orange-800 font-medium">${(sale.remainingDebt ?? 0).toFixed(2)}</span>
                         </div>
                         <div className="flex justify-between text-sm">
                           <span className="text-gray-700">
                             Expected Date Payement
                           </span>
-                          <span className="text-gray-800">{formatDate(sale.expectedPaymentDate)}</span>
+                          <span className="text-gray-800"> {formatDate(sale.expectedPaymentDate ?? "-")}</span>
                         </div>
                       </div>
                     }
@@ -184,7 +184,7 @@ export function Clients({ clients, sales, debtPayments, onClose }: ClientsProps)
                             <span className="text-gray-700">
                               Expected Date Payement
                             </span>
-                            <span className="text-gray-800">{formatDate(sale.expectedPaymentDate)}</span>
+                            <span className="text-gray-800">{formatDate(sale.expectedPaymentDate ?? "-")}</span>
                           </div>
                         </div>
                       </div>

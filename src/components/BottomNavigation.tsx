@@ -12,7 +12,6 @@ import {
   FileText,
   CreditCard,
   BarChart3,
-  FileText
 } from 'lucide-react';
 import { useLanguage } from './LanguageContext';
 
