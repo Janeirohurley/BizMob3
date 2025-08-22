@@ -4,20 +4,25 @@ import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
 import { ArrowLeft, Users, Star, Calendar, DollarSign, Search } from 'lucide-react';
-import { Client, Sale } from '../types/business';
+import { Client, Sale, DebtPayment } from '../types/business';
 import { useLanguage } from './LanguageContext';
+import { useBusinessData } from '@/hooks/useBusinessData';
 
 interface ClientsProps {
   clients: Client[];
   sales: Sale[];
+  debtPayments: DebtPayment[]
   onClose: () => void;
 }
 
-export function Clients({ clients, sales, onClose }: ClientsProps) {
+export function Clients({ clients, sales, debtPayments, onClose }: ClientsProps) {
   const { t } = useLanguage();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedClient, setSelectedClient] = useState<Client | null>(null);
-
+  const {
+    debts,
+  } = useBusinessData();
+  console.log({clients},{debtPayments},{debts})
   // Filter clients based on search term
   const filteredClients = clients.filter(client =>
     client.name.toLowerCase().includes(searchTerm.toLowerCase())
@@ -33,12 +38,12 @@ export function Clients({ clients, sales, onClose }: ClientsProps) {
   // Get client statistics
   const getClientStats = (client: Client) => {
     const clientSales = getClientSales(client.name);
-    const totalItems = clientSales.reduce((sum, sale) => 
+    const totalItems = clientSales.reduce((sum, sale) =>
       sum + sale.items.reduce((itemSum, item) => itemSum + item.quantity, 0), 0
     );
-    const averageOrderValue = client.transactionCount > 0 ? 
+    const averageOrderValue = client.transactionCount > 0 ?
       client.totalPurchases / client.transactionCount : 0;
-    
+
     return {
       totalItems,
       averageOrderValue,
@@ -49,7 +54,7 @@ export function Clients({ clients, sales, onClose }: ClientsProps) {
   // Sort clients by different criteria
   const sortClientsByFrequency = () => [...filteredClients].sort((a, b) => b.transactionCount - a.transactionCount);
   const sortClientsByValue = () => [...filteredClients].sort((a, b) => b.totalPurchases - a.totalPurchases);
-  const sortClientsByRecent = () => [...filteredClients].sort((a, b) => 
+  const sortClientsByRecent = () => [...filteredClients].sort((a, b) =>
     new Date(b.lastTransactionDate).getTime() - new Date(a.lastTransactionDate).getTime()
   );
 
@@ -65,8 +70,8 @@ export function Clients({ clients, sales, onClose }: ClientsProps) {
       <div className="min-h-screen bg-gray-50">
         {/* Header */}
         <div className="bg-white shadow-sm p-4 flex items-center justify-between">
-          <Button 
-            variant="ghost" 
+          <Button
+            variant="ghost"
             onClick={() => setSelectedClient(null)}
             className="p-2"
           >
@@ -128,17 +133,17 @@ export function Clients({ clients, sales, onClose }: ClientsProps) {
                         <p className="text-sm text-gray-600">{formatDate(sale.date)}</p>
                         <p className="text-lg text-gray-800">${sale.totalAmount.toFixed(2)}</p>
                       </div>
-                      <span className={`px-2 py-1 rounded text-xs ${
-                        sale.paymentStatus === 'paid' ? 'bg-green-100 text-green-800' :
+                      <span className={`px-2 py-1 rounded text-xs ${sale.paymentStatus === 'paid' ? 'bg-green-100 text-green-800' :
                         sale.paymentStatus === 'partial' ? 'bg-orange-100 text-orange-800' :
-                        'bg-red-100 text-red-800'
-                      }`}>
-                        {sale.paymentStatus === 'debt' ? 'Unpaid' : 
-                         sale.paymentStatus.charAt(0).toUpperCase() + sale.paymentStatus.slice(1)}
+                          'bg-red-100 text-red-800'
+                        }`}>
+                        {sale.paymentStatus === 'debt' ? 'Unpaid' :
+                          sale.paymentStatus.charAt(0).toUpperCase() + sale.paymentStatus.slice(1)}
+
                       </span>
                     </div>
-                    
-                    <div className="space-y-2">
+
+                    <div className="space-y-2 mb-3 pt-3 border-b border-gray-200">
                       {sale.items.map((item, index) => (
                         <div key={index} className="flex justify-between text-sm">
                           <span className="text-gray-700">
@@ -149,14 +154,45 @@ export function Clients({ clients, sales, onClose }: ClientsProps) {
                       ))}
                     </div>
 
+                    {/* montre quand est expected date */}
+                    {
+                      sale.paymentStatus === 'partial' || sale.paymentStatus === 'debt' &&
+                      <div className="space-y-2">
+                        <div className="flex justify-between text-sm">
+                          <span className="text-orange-700">Remaining debt:</span>
+                          <span className="text-orange-800 font-medium">${sale.remainingDebt.toFixed(2)}</span>
+                        </div>
+                        <div className="flex justify-between text-sm">
+                          <span className="text-gray-700">
+                            Expected Date Payement
+                          </span>
+                          <span className="text-gray-800">{formatDate(sale.expectedPaymentDate)}</span>
+                        </div>
+                      </div>
+                    }
+
+
+
                     {sale.paymentStatus === 'partial' && sale.remainingDebt && (
                       <div className="mt-3 pt-3 border-t border-gray-200">
                         <div className="flex justify-between text-sm">
                           <span className="text-orange-700">Remaining debt:</span>
                           <span className="text-orange-800 font-medium">${sale.remainingDebt.toFixed(2)}</span>
                         </div>
+                        <div className="space-y-2">
+                          <div className="flex justify-between text-sm">
+                            <span className="text-gray-700">
+                              Expected Date Payement
+                            </span>
+                            <span className="text-gray-800">{formatDate(sale.expectedPaymentDate)}</span>
+                          </div>
+                        </div>
                       </div>
                     )}
+                    <button onClick={() => console.log(debtPayments.filter(deb => deb.debtId === sale.id), sale.id)} className={`px-2 py-1 mt-2 rounded-full w-full text-xs bg-green-100 text-green-800 text-center cursor-pointer`}>
+                      Payment History
+
+                    </button>
                   </div>
                 ))
               )}
@@ -171,8 +207,8 @@ export function Clients({ clients, sales, onClose }: ClientsProps) {
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
       <div className="bg-white shadow-sm p-4 flex items-center justify-between">
-        <Button 
-          variant="ghost" 
+        <Button
+          variant="ghost"
           onClick={onClose}
           className="p-2"
         >
@@ -230,12 +266,12 @@ export function Clients({ clients, sales, onClose }: ClientsProps) {
             <TabsTrigger value="value">By Value</TabsTrigger>
             <TabsTrigger value="recent">Recent</TabsTrigger>
           </TabsList>
-          
+
           <TabsContent value="frequency" className="space-y-4">
             <div className="space-y-3">
               {sortClientsByFrequency().map((client, index) => (
-                <Card 
-                  key={client.id} 
+                <Card
+                  key={client.id}
                   className="p-4 cursor-pointer hover:shadow-md transition-shadow"
                   onClick={() => setSelectedClient(client)}
                 >
@@ -273,8 +309,8 @@ export function Clients({ clients, sales, onClose }: ClientsProps) {
           <TabsContent value="value" className="space-y-4">
             <div className="space-y-3">
               {sortClientsByValue().map((client, index) => (
-                <Card 
-                  key={client.id} 
+                <Card
+                  key={client.id}
                   className="p-4 cursor-pointer hover:shadow-md transition-shadow"
                   onClick={() => setSelectedClient(client)}
                 >
@@ -308,8 +344,8 @@ export function Clients({ clients, sales, onClose }: ClientsProps) {
           <TabsContent value="recent" className="space-y-4">
             <div className="space-y-3">
               {sortClientsByRecent().map((client) => (
-                <Card 
-                  key={client.id} 
+                <Card
+                  key={client.id}
                   className="p-4 cursor-pointer hover:shadow-md transition-shadow"
                   onClick={() => setSelectedClient(client)}
                 >

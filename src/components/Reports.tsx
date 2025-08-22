@@ -7,6 +7,7 @@ import { Button } from './ui/button';
 import { Download } from 'lucide-react';
 import { Purchase, Sale, Debt, Product, Client } from '../types/business';
 import { useLanguage } from './LanguageContext';
+import { useBusinessData } from '@/hooks/useBusinessData';
 
 interface ReportsProps {
   purchases: Purchase[];
@@ -25,14 +26,14 @@ export function Reports({ purchases, sales, debts, products, clients }: ReportsP
   const totalSales = sales.reduce((sum, sale) => sum + sale.totalAmount, 0);
   const totalDebts = debts.reduce((sum, debt) => sum + debt.totalDebt, 0);
   const totalProfit = totalSales - totalPurchases;
-
+  const { formatCurrency } = useBusinessData()
   // Generate time-based data
   const generateTimeBasedData = (period: 'daily' | 'monthly' | 'yearly') => {
     const now = new Date();
     const data = [];
     let periods = 7; // days
     let dateFormat = { weekday: 'short' } as Intl.DateTimeFormatOptions;
-    
+
     if (period === 'monthly') {
       periods = 12;
       dateFormat = { month: 'short' };
@@ -43,7 +44,7 @@ export function Reports({ purchases, sales, debts, products, clients }: ReportsP
 
     for (let i = periods - 1; i >= 0; i--) {
       const date = new Date(now);
-      
+
       if (period === 'daily') {
         date.setDate(date.getDate() - i);
       } else if (period === 'monthly') {
@@ -72,14 +73,14 @@ export function Reports({ purchases, sales, debts, products, clients }: ReportsP
 
       const periodSales = sales
         .filter(sale => {
-          const saleDate = new Date(sale.date);
+          const saleDate = new Date(sale.saleDate);
           return saleDate >= startOfPeriod && saleDate <= endOfPeriod;
         })
         .reduce((sum, sale) => sum + sale.totalAmount, 0);
 
       const periodPurchases = purchases
         .filter(purchase => {
-          const purchaseDate = new Date(purchase.date);
+          const purchaseDate = new Date(purchase.purchaseDate);
           return purchaseDate >= startOfPeriod && purchaseDate <= endOfPeriod;
         })
         .reduce((sum, purchase) => sum + purchase.totalPrice, 0);
@@ -98,7 +99,7 @@ export function Reports({ purchases, sales, debts, products, clients }: ReportsP
   // Generate pie chart data for client distribution
   const generateClientDistribution = () => {
     const clientTotals: { [key: string]: number } = {};
-    
+
     sales.forEach(sale => {
       if (clientTotals[sale.clientName]) {
         clientTotals[sale.clientName] += sale.totalAmount;
@@ -108,9 +109,9 @@ export function Reports({ purchases, sales, debts, products, clients }: ReportsP
     });
 
     const colors = ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#EC4899'];
-    
+
     return Object.entries(clientTotals)
-      .sort(([,a], [,b]) => b - a)
+      .sort(([, a], [, b]) => b - a)
       .slice(0, 6)
       .map(([client, total], index) => ({
         name: client,
@@ -122,7 +123,7 @@ export function Reports({ purchases, sales, debts, products, clients }: ReportsP
   // Generate supplier distribution
   const generateSupplierDistribution = () => {
     const supplierTotals: { [key: string]: number } = {};
-    
+
     purchases.forEach(purchase => {
       if (supplierTotals[purchase.supplierName]) {
         supplierTotals[purchase.supplierName] += purchase.totalPrice;
@@ -132,9 +133,9 @@ export function Reports({ purchases, sales, debts, products, clients }: ReportsP
     });
 
     const colors = ['#EF4444', '#F59E0B', '#8B5CF6', '#EC4899', '#6366F1', '#14B8A6'];
-    
+
     return Object.entries(supplierTotals)
-      .sort(([,a], [,b]) => b - a)
+      .sort(([, a], [, b]) => b - a)
       .slice(0, 6)
       .map(([supplier, total], index) => ({
         name: supplier,
@@ -210,7 +211,7 @@ export function Reports({ purchases, sales, debts, products, clients }: ReportsP
 
     const dataBlob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(dataBlob);
-    
+
     const link = document.createElement('a');
     link.href = url;
     link.download = `bizmob-report-${new Date().toISOString().split('T')[0]}.csv`;
@@ -233,8 +234,8 @@ export function Reports({ purchases, sales, debts, products, clients }: ReportsP
           {payload.map((entry: any, index: number) => (
             <p key={index} className="text-sm" style={{ color: entry.fill }}>
               {entry.name === 'sales' ? t.salesTooltip.replace('{value}', entry.value.toFixed(2)) :
-               entry.name === 'purchases' ? t.purchasesTooltip.replace('{value}', entry.value.toFixed(2)) :
-               t.profitTooltip.replace('{value}', entry.value.toFixed(2))}
+                entry.name === 'purchases' ? t.purchasesTooltip.replace('{value}', entry.value.toFixed(2)) :
+                  t.profitTooltip.replace('{value}', entry.value.toFixed(2))}
             </p>
           ))}
         </div>
@@ -277,22 +278,22 @@ export function Reports({ purchases, sales, debts, products, clients }: ReportsP
       {/* Overview Cards */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
         <Card className="p-4 text-center">
-          <h3 className="text-base sm:text-lg text-green-600">${totalSales.toLocaleString()}</h3>
-          <p className="text-xs sm:text-sm text-gray-600">{t.totalSales}</p>
+          <h3 className="text-base text-green-600">{formatCurrency(totalSales)}</h3>
+          <p className="text-xs  text-gray-600">{t.totalSales}</p>
         </Card>
         <Card className="p-4 text-center">
-          <h3 className="text-base sm:text-lg text-blue-600">${totalPurchases.toLocaleString()}</h3>
-          <p className="text-xs sm:text-sm text-gray-600">{t.totalPurchases}</p>
+          <h3 className="text-base  text-blue-600">{formatCurrency(totalPurchases)}</h3>
+          <p className="text-xs  text-gray-600">{t.totalPurchases}</p>
         </Card>
         <Card className="p-4 text-center">
-          <h3 className={`text-base sm:text-lg ${totalProfit >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
-            ${totalProfit.toLocaleString()}
+          <h3 className={`text-base   ${totalProfit >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
+            {formatCurrency(totalProfit)}
           </h3>
-          <p className="text-xs sm:text-sm text-gray-600">{t.netProfit}</p>
+          <p className="text-xs  text-gray-600">{t.netProfit}</p>
         </Card>
         <Card className="p-4 text-center">
-          <h3 className="text-base sm:text-lg text-red-600">${totalDebts.toLocaleString()}</h3>
-          <p className="text-xs sm:text-sm text-gray-600">{t.outstandingDebts}</p>
+          <h3 className="text-base  text-red-600">{formatCurrency(totalDebts)}</h3>
+          <p className="text-xs  text-gray-600">{t.outstandingDebts}</p>
         </Card>
       </div>
 
@@ -311,8 +312,8 @@ export function Reports({ purchases, sales, debts, products, clients }: ReportsP
             <div className="h-64 sm:h-80">
               <ResponsiveContainer width="100%" height="100%" minHeight={200}>
                 <BarChart data={timeBasedData}>
-                  <XAxis 
-                    dataKey="period" 
+                  <XAxis
+                    dataKey="period"
                     axisLine={false}
                     tickLine={false}
                     tick={{ fontSize: '10px sm:12px', fill: '#6B7280' }}
@@ -398,7 +399,7 @@ export function Reports({ purchases, sales, debts, products, clients }: ReportsP
             {debts.filter(debt => debt.totalDebt > 0).map((debt) => (
               <div key={debt.id} className="flex justify-between items-center py-2 border-b border-gray-100 last:border-b-0">
                 <span className="text-gray-800 text-sm sm:text-base">{debt.clientName}</span>
-                <span className="text-red-600 text-sm sm:text-base">${debt.totalDebt.toFixed(2)}</span>
+                <span className="text-red-600 text-sm sm:text-base" title={debt.totalDebt.toFixed(2)}>{formatCurrency(debt.totalDebt)}</span>  
               </div>
             ))}
           </div>

@@ -42,14 +42,14 @@ export const updateProductsFromPurchases = (
       const oldTotal = existing.totalPurchased;
       existing.totalPurchased += purchase.quantity;
       existing.lastPurchasePrice = purchase.unitPrice;
-      
+
       // Update initialSalePrice if provided in newer purchases
       if (purchase.initialSalePrice) {
         existing.initialSalePrice = purchase.initialSalePrice;
       }
-      
+
       // Recalculate average purchase price
-      existing.averagePurchasePrice = 
+      existing.averagePurchasePrice =
         (existing.averagePurchasePrice * oldTotal + purchase.unitPrice * purchase.quantity) /
         existing.totalPurchased;
     } else {
@@ -104,7 +104,7 @@ export const updateClientsFromSales = (
 
   // Initialize from existing clients
   existingClients.forEach((client) => {
-    clientMap.set(client.name, { 
+    clientMap.set(client.name, {
       ...client,
       totalPurchases: 0,
       totalDebt: 0,
@@ -119,12 +119,12 @@ export const updateClientsFromSales = (
     if (existing) {
       existing.totalPurchases += sale.totalAmount;
       existing.transactionCount += 1;
-      
+
       // Update last transaction date if this sale is more recent
       if (new Date(sale.date) > new Date(existing.lastTransactionDate)) {
         existing.lastTransactionDate = sale.date;
       }
-      
+
       if (sale.paymentStatus === "debt" || (sale.paymentStatus === "partial" && sale.remainingDebt)) {
         existing.totalDebt += sale.remainingDebt || sale.totalAmount;
       }
@@ -155,12 +155,12 @@ export const checkDebtNotifications = (debts: Debt[], sales: Sale[]): string[] =
   debts.forEach(debt => {
     if (debt.totalDebt > 0) {
       // Find the oldest unpaid sale for this client
-      const clientSales = sales.filter(sale => 
-        sale.clientName === debt.clientName && 
+      const clientSales = sales.filter(sale =>
+        sale.clientName === debt.clientName &&
         (sale.paymentStatus === 'debt' || sale.remainingDebt)
       );
-      
-      const oldestSale = clientSales.sort((a, b) => 
+
+      const oldestSale = clientSales.sort((a, b) =>
         new Date(a.date).getTime() - new Date(b.date).getTime()
       )[0];
 
@@ -173,4 +173,19 @@ export const checkDebtNotifications = (debts: Debt[], sales: Sale[]): string[] =
   });
 
   return notifications;
+};
+
+// Format compact (1k, 1.2M, etc.)
+export const formatNumber = (n: number) => {
+  if (n < 0) {
+    n = n * (-1)
+    if (n >= 1_000_000) return `-${(n / 1_000_000).toFixed(n % 1_000_000 === 0 ? 0 : 1)}M`;
+    if (n >= 1_000) return `-${(n / 1_000).toFixed(n % 1_000 === 0 ? 0 : 1)}k`;
+    return n.toString();
+  } else {
+    if (n >= 1_000_000) return (n / 1_000_000).toFixed(n % 1_000_000 === 0 ? 0 : 1) + 'M';
+    if (n >= 1_000) return (n / 1_000).toFixed(n % 1_000 === 0 ? 0 : 1) + 'k';
+    return n.toString();
+  }
+
 };

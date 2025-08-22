@@ -101,7 +101,7 @@ export function Dashboard({
 
       {/* Notifications */}
       {(notifications.length > 0 || upcomingPayments.length > 0) && (
-        <Card className="p-4 border-l-4 border-l-orange-500 bg-orange-50">
+        <Card className="p-2 bg-orange-50">
           <div className="flex items-start gap-3">
             <AlertTriangle className="w-5 h-5 text-orange-600 mt-0.5" />
             <div className="flex-1">
@@ -126,7 +126,7 @@ export function Dashboard({
                   onClick={onViewDebts}
                   variant="outline"
                   size="sm"
-                  className="mt-3 text-orange-700 border-orange-300 hover:bg-orange-100"
+                  className="mt-3 text-xs text-orange-700 border-orange-300 hover:bg-orange-100"
                 >
                   View All Debts
                 </Button>

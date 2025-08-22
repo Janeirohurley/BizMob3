@@ -7,6 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '.
 import { ArrowLeft, History as HistoryIcon, TrendingUp, TrendingDown, Search, Filter, Calendar, Download } from 'lucide-react';
 import { Purchase, Sale, Client } from '../types/business';
 import { useLanguage } from './LanguageContext';
+import { useBusinessData } from '@/hooks/useBusinessData';
 
 interface HistoryProps {
   purchases: Purchase[];
@@ -17,7 +18,7 @@ interface HistoryProps {
 
 interface Transaction {
   id: string;
-  date: string;
+  date?: string;
   type: 'purchase' | 'sale';
   amount: number;
   party: string; // supplier for purchase, client for sale
@@ -31,12 +32,14 @@ export function History({ purchases, sales, clients, onClose }: HistoryProps) {
   const [selectedFilter, setSelectedFilter] = useState('all');
   const [dateFilter, setDateFilter] = useState('all');
   const [selectedParty, setSelectedParty] = useState('');
+  const { formatCurrency } = useBusinessData()
 
   // Convert purchases and sales to unified transaction format
   const getAllTransactions = (): Transaction[] => {
+
     const purchaseTransactions: Transaction[] = purchases.map(purchase => ({
       id: purchase.id,
-      date: purchase.date,
+      date: purchase.purchaseDate,
       type: 'purchase',
       amount: purchase.totalPrice,
       party: purchase.supplierName,
@@ -45,7 +48,7 @@ export function History({ purchases, sales, clients, onClose }: HistoryProps) {
 
     const saleTransactions: Transaction[] = sales.map(sale => ({
       id: sale.id,
-      date: sale.date,
+      date: sale.saleDate,
       type: 'sale',
       amount: sale.totalAmount,
       party: sale.clientName,
@@ -69,7 +72,7 @@ export function History({ purchases, sales, clients, onClose }: HistoryProps) {
   // Filter transactions
   const filteredTransactions = transactions.filter(transaction => {
     // Search filter
-    const matchesSearch = !searchTerm || 
+    const matchesSearch = !searchTerm ||
       transaction.party.toLowerCase().includes(searchTerm.toLowerCase()) ||
       transaction.description.toLowerCase().includes(searchTerm.toLowerCase());
 
@@ -82,10 +85,10 @@ export function History({ purchases, sales, clients, onClose }: HistoryProps) {
     // Date filter
     const matchesDate = (() => {
       if (dateFilter === 'all') return true;
-      
+
       const transactionDate = new Date(transaction.date);
       const now = new Date();
-      
+
       switch (dateFilter) {
         case 'today':
           return transactionDate.toDateString() === now.toDateString();
@@ -111,7 +114,7 @@ export function History({ purchases, sales, clients, onClose }: HistoryProps) {
     const totalPurchases = filteredTransactions
       .filter(t => t.type === 'purchase')
       .reduce((sum, t) => sum + t.amount, 0);
-    
+
     const totalSales = filteredTransactions
       .filter(t => t.type === 'sale')
       .reduce((sum, t) => sum + t.amount, 0);
@@ -140,7 +143,7 @@ export function History({ purchases, sales, clients, onClose }: HistoryProps) {
   // Group transactions by date
   const groupTransactionsByDate = () => {
     const grouped: { [key: string]: Transaction[] } = {};
-    
+
     filteredTransactions.forEach(transaction => {
       const dateKey = formatDateShort(transaction.date);
       if (!grouped[dateKey]) {
@@ -171,8 +174,8 @@ export function History({ purchases, sales, clients, onClose }: HistoryProps) {
       transaction.party,
       transaction.description,
       transaction.amount.toFixed(2),
-      transaction.paymentStatus ? (transaction.paymentStatus === 'paid' ? t.paid : 
-                                  transaction.paymentStatus === 'partial' ? t.partial : t.unpaid) : ''
+      transaction.paymentStatus ? (transaction.paymentStatus === 'paid' ? t.paid :
+        transaction.paymentStatus === 'partial' ? t.partial : t.unpaid) : ''
     ]);
 
     const csvContent = [
@@ -182,7 +185,7 @@ export function History({ purchases, sales, clients, onClose }: HistoryProps) {
 
     const dataBlob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(dataBlob);
-    
+
     const link = document.createElement('a');
     link.href = url;
     link.download = `bizmob-history-${new Date().toISOString().split('T')[0]}.csv`;
@@ -196,8 +199,8 @@ export function History({ purchases, sales, clients, onClose }: HistoryProps) {
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
       <div className="bg-white shadow-sm p-4 flex items-center justify-between">
-        <Button 
-          variant="ghost" 
+        <Button
+          variant="ghost"
           onClick={onClose}
           className="p-2"
         >
@@ -226,10 +229,10 @@ export function History({ purchases, sales, clients, onClose }: HistoryProps) {
             <p className="text-xs sm:text-sm text-gray-600">{t.totalTransactions}</p>
           </Card>
           <Card className="p-4 text-center">
-            <h3 className={`text-base sm:text-lg ${stats.profit >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-              ${Math.abs(stats.profit).toLocaleString()}
+            <h3 className={`text-base sm:text-lg ${stats.profit >= 0 ? 'text-green-600' : 'text-red-600'}`} title={stats.profit.toFixed()}>
+              {formatCurrency(stats.profit)}
             </h3>
-            <p className="text-xs sm:text-sm text-gray-600">
+            <p className="text-xs sm:text-sm text-gray-600 " >
               {stats.profit >= 0 ? t.profit : t.loss}
             </p>
           </Card>
@@ -241,7 +244,7 @@ export function History({ purchases, sales, clients, onClose }: HistoryProps) {
             <Filter className="w-4 h-4" />
             {t.filters}
           </h4>
-          
+
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             {/* Search */}
             <div className="col-span-1 sm:col-span-2">
@@ -301,8 +304,8 @@ export function History({ purchases, sales, clients, onClose }: HistoryProps) {
 
           {/* Clear Filters */}
           {(searchTerm || selectedFilter !== 'all' || dateFilter !== 'all' || (selectedParty && selectedParty !== 'all-parties')) && (
-            <Button 
-              variant="outline" 
+            <Button
+              variant="outline"
               onClick={() => {
                 setSearchTerm('');
                 setSelectedFilter('all');
@@ -338,28 +341,27 @@ export function History({ purchases, sales, clients, onClose }: HistoryProps) {
                     ({dayTransactions.length} {t.totalTransactions.toLowerCase()})
                   </span>
                 </div>
-                
+
                 <div className="space-y-3">
                   {dayTransactions.map((transaction) => (
                     <div key={transaction.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                       <div className="flex items-center space-x-3">
-                        <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                          transaction.type === 'sale' 
-                            ? 'bg-green-100 text-green-600' 
-                            : 'bg-blue-100 text-blue-600'
-                        }`}>
+                        <div className={`w-10 h-10 rounded-full flex items-center justify-center ${transaction.type === 'sale'
+                          ? 'bg-green-100 text-green-600'
+                          : 'bg-blue-100 text-blue-600'
+                          }`}>
                           {transaction.type === 'sale' ? (
                             <TrendingUp className="w-5 h-5" />
                           ) : (
                             <TrendingDown className="w-5 h-5" />
                           )}
                         </div>
-                        
-                        <div>
-                          <h5 className="text-sm sm:text-base text-gray-800">
+
+                        <div className=''>
+                          <h5 className="text-sm  text-gray-800 ">
                             {transaction.type === 'sale' ? t.saleTo : t.purchaseFrom} {transaction.party}
                           </h5>
-                          <p className="text-xs sm:text-sm text-gray-600 truncate max-w-[150px] sm:max-w-[200px]">
+                          <p className="text-xs  text-gray-600 truncate max-w-[150px] sm:max-w-[200px]">
                             {transaction.description}
                           </p>
                           <p className="text-xs text-gray-500">
@@ -367,59 +369,55 @@ export function History({ purchases, sales, clients, onClose }: HistoryProps) {
                           </p>
                         </div>
                       </div>
-                      
-                      <div className="text-right">
-                        <div className={`text-sm sm:text-lg font-medium ${
-                          transaction.type === 'sale' ? 'text-green-600' : 'text-blue-600'
-                        }`}>
-                          {transaction.type === 'sale' ? '+' : '-'}${transaction.amount.toFixed(2)}
-                        </div>
-                        
-                        {transaction.paymentStatus && (
-                          <span className={`text-xs px-2 py-1 rounded ${
-                            transaction.paymentStatus === 'paid' ? 'bg-green-100 text-green-800' :
-                            transaction.paymentStatus === 'partial' ? 'bg-orange-100 text-orange-800' :
-                            'bg-red-100 text-red-800'
+
+                      <div className="">
+                        <div className={`text-sm  font-medium ${transaction.type === 'sale' ? 'text-green-600' : 'text-blue-600'
                           }`}>
+                          {transaction.type === 'sale' ? '+' : ''}{formatCurrency(transaction.amount)}
+                        </div>
+
+                        {transaction.paymentStatus && (
+                          <span className={`text-xs px-2 py-1 rounded ${transaction.paymentStatus === 'paid' ? 'bg-green-100 text-green-800' :
+                            transaction.paymentStatus === 'partial' ? 'bg-orange-100 text-orange-800' :
+                              'bg-red-100 text-red-800'
+                            }`}>
                             {transaction.paymentStatus === 'paid' ? t.paid :
-                             transaction.paymentStatus === 'partial' ? t.partial : t.unpaid}
+                              transaction.paymentStatus === 'partial' ? t.partial : t.unpaid}
                           </span>
                         )}
                       </div>
                     </div>
                   ))}
                 </div>
-                
+
                 {/* Daily Summary */}
                 <div className="mt-4 pt-3 border-t border-gray-200">
                   <div className="grid grid-cols-3 gap-2 sm:gap-4 text-center text-xs sm:text-sm">
                     <div>
                       <span className="text-gray-600">{t.sales}: </span>
                       <span className="text-green-600 font-medium">
-                        ${dayTransactions
+                        {formatCurrency(dayTransactions
                           .filter(t => t.type === 'sale')
-                          .reduce((sum, t) => sum + t.amount, 0)
-                          .toFixed(2)}
+                          .reduce((sum, t) => sum + t.amount, 0))}
                       </span>
                     </div>
                     <div>
                       <span className="text-gray-600">{t.purchases}: </span>
                       <span className="text-blue-600 font-medium">
-                        ${dayTransactions
+                        {formatCurrency(dayTransactions
                           .filter(t => t.type === 'purchase')
-                          .reduce((sum, t) => sum + t.amount, 0)
-                          .toFixed(2)}
+                          .reduce((sum, t) => sum + t.amount, 0))
+                        }
                       </span>
                     </div>
                     <div>
                       <span className="text-gray-600">{t.net}: </span>
-                      <span className={`font-medium ${
-                        (dayTransactions.filter(t => t.type === 'sale').reduce((sum, t) => sum + t.amount, 0) -
-                         dayTransactions.filter(t => t.type === 'purchase').reduce((sum, t) => sum + t.amount, 0)) >= 0
-                          ? 'text-green-600' : 'text-red-600'
-                      }`}>
-                        ${(dayTransactions.filter(t => t.type === 'sale').reduce((sum, t) => sum + t.amount, 0) -
-                           dayTransactions.filter(t => t.type === 'purchase').reduce((sum, t) => sum + t.amount, 0)).toFixed(2)}
+                      <span className={`font-medium ${(dayTransactions.filter(t => t.type === 'sale').reduce((sum, t) => sum + t.amount, 0) -
+                        dayTransactions.filter(t => t.type === 'purchase').reduce((sum, t) => sum + t.amount, 0)) >= 0
+                        ? 'text-green-600' : 'text-red-600'
+                        }`}>
+                        {formatCurrency(dayTransactions.filter(t => t.type === 'sale').reduce((sum, t) => sum + t.amount, 0) -
+                          dayTransactions.filter(t => t.type === 'purchase').reduce((sum, t) => sum + t.amount, 0))}
                       </span>
                     </div>
                   </div>

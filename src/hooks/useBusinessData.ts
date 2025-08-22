@@ -5,7 +5,8 @@ import {
   updateProductsFromPurchases, 
   updateProductsFromSales, 
   updateClientsFromSales,
-  checkDebtNotifications
+  checkDebtNotifications,
+  formatNumber
 } from '../utils/businessLogic';
 
 export const useBusinessData = () => {
@@ -185,7 +186,7 @@ export const useBusinessData = () => {
   };
 
   const formatCurrency = (amount: number) => {
-    return `${businessData.currencySymbol}${amount.toFixed(2)}`;
+    return `${amount} ${businessData.currencySymbol}`;
   };
 
   return {

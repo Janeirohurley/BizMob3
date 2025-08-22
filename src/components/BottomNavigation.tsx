@@ -13,6 +13,7 @@ import {
   CreditCard,
   BarChart3
 } from 'lucide-react';
+import { useLanguage } from './LanguageContext';
 
 interface BottomNavigationProps {
   currentScreen: string;
@@ -22,6 +23,7 @@ interface BottomNavigationProps {
 export function BottomNavigation({ currentScreen, onScreenChange }: BottomNavigationProps) {
   const [showTransactionsPopover, setShowTransactionsPopover] = useState(false);
   const [showAnalyticsPopover, setShowAnalyticsPopover] = useState(false);
+  const { t } = useLanguage();
 
   const isActive = (screen: string) => currentScreen === screen;
   const isTransactionScreen = ['transactions', 'add-purchase', 'add-sale'].includes(currentScreen);
@@ -40,7 +42,7 @@ export function BottomNavigation({ currentScreen, onScreenChange }: BottomNaviga
           }`}
         >
           <Home className="w-4 h-4" />
-          <span className="text-xs">Home</span>
+          <span className="text-xs">{ t.home}</span>
         </Button>
 
         {/* Transactions (Buy/Sell grouped) */}
@@ -53,7 +55,7 @@ export function BottomNavigation({ currentScreen, onScreenChange }: BottomNaviga
               }`}
             >
               <Plus className="w-4 h-4" />
-              <span className="text-xs">Add</span>
+              <span className="text-xs">{ t.add}</span>
             </Button>
           </PopoverTrigger>
           <PopoverContent className="w-48 p-2" align="center" side="top">
@@ -67,7 +69,7 @@ export function BottomNavigation({ currentScreen, onScreenChange }: BottomNaviga
                 className="w-full justify-start"
               >
                 <Package className="w-4 h-4 mr-2" />
-                Add Purchase
+                { t.addPurchase}
               </Button>
               <Button
                 variant="ghost"
@@ -78,7 +80,7 @@ export function BottomNavigation({ currentScreen, onScreenChange }: BottomNaviga
                 className="w-full justify-start"
               >
                 <ShoppingCart className="w-4 h-4 mr-2" />
-                Add Sale
+               { t.addSale}
               </Button>
             </div>
           </PopoverContent>
@@ -93,7 +95,7 @@ export function BottomNavigation({ currentScreen, onScreenChange }: BottomNaviga
           }`}
         >
           <Users className="w-4 h-4" />
-          <span className="text-xs">Clients</span>
+          <span className="text-xs">{ t.clients}</span>
         </Button>
 
         {/* Analytics (Reports, Products, History grouped) */}
@@ -120,7 +122,7 @@ export function BottomNavigation({ currentScreen, onScreenChange }: BottomNaviga
                 className="w-full justify-start"
               >
                 <BarChart3 className="w-4 h-4 mr-2" />
-                Reports
+                { t.reports}
               </Button>
               <Button
                 variant="ghost"
@@ -131,7 +133,7 @@ export function BottomNavigation({ currentScreen, onScreenChange }: BottomNaviga
                 className="w-full justify-start"
               >
                 <Package className="w-4 h-4 mr-2" />
-                Products
+                { t.products}
               </Button>
               <Button
                 variant="ghost"
@@ -142,7 +144,7 @@ export function BottomNavigation({ currentScreen, onScreenChange }: BottomNaviga
                 className="w-full justify-start"
               >
                 <FileText className="w-4 h-4 mr-2" />
-                History
+                { t.history}
               </Button>
               <Button
                 variant="ghost"
@@ -153,7 +155,7 @@ export function BottomNavigation({ currentScreen, onScreenChange }: BottomNaviga
                 className="w-full justify-start"
               >
                 <CreditCard className="w-4 h-4 mr-2" />
-                Debts
+                { t.debts}
               </Button>
             </div>
           </PopoverContent>
@@ -168,7 +170,7 @@ export function BottomNavigation({ currentScreen, onScreenChange }: BottomNaviga
           }`}
         >
           <Settings className="w-4 h-4" />
-          <span className="text-xs">Settings</span>
+          <span className="text-xs">{ t.settings}</span>
         </Button>
 
       </div>
